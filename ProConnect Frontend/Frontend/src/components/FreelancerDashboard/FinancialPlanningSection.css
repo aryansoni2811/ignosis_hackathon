@@ -1,0 +1,75 @@
+/* src/components/FinancialPlanningSection.css */
+.financial-planning-container {
+    padding: 20px;
+  }
+  
+  .financial-planning-header {
+    margin-bottom: 30px;
+  }
+  
+  .financial-planning-header h2 {
+    margin: 0;
+    font-size: 1.8rem;
+    color: #333;
+  }
+  
+  .financial-planning-header p {
+    margin: 8px 0 0;
+    color: #666;
+    font-size: 1rem;
+  }
+  
+  .financial-planning-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  
+  .financial-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eaeaea;
+  }
+  
+  .financial-card h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.2rem;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+  }
+  
+  .savings-content {
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+  }
+  
+  .tips-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .tip-item {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+  }
+  
+  .tip-item h4 {
+    margin: 0 0 8px;
+    font-size: 1rem;
+    color: #444;
+  }
+  
+  .tip-item p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #666;
+  }

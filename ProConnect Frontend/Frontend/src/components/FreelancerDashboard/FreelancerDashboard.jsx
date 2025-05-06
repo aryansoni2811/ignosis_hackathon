@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Home, 
-  Briefcase, 
-  FileText, 
-  DollarSign, 
-  MessageCircle, 
+import {
+  Home,
+  Briefcase,
+  FileText,
+  DollarSign,
+  MessageCircle,
   Settings,
   User,
   CheckCircle,
   Clock,
-  Zap
+  Zap,
+  TrendingUp,
+  PieChart
 } from 'lucide-react';
 import './FreelancerDashboard.css';
+import TaxEstimationComponent from './TaxEstimationComponent';
 import axiosInstance from '../config/axiosConfig';
 import ProjectsSection from './ProjectsSection';
 import ProposalsSection from './ProposalsSection';
@@ -20,6 +23,7 @@ import MessagesSection from './MessagesSection';
 import SettingsSection from './SettingsSection';
 import BrowseProjectsSection from './BrowseProjectsSection';
 import '../../App.css';
+import FinancialPlanningSection from './FinancialPlanningSection';
 
 const FreelancerDashboard = () => {
   const [activeSection, setActiveSection] = useState('overview');
@@ -43,32 +47,27 @@ const FreelancerDashboard = () => {
         if (!email) {
           throw new Error('No freelancer email found');
         }
-        
-        // Fetch freelancer data
+
         const freelancerResponse = await axiosInstance.get(`/api/auth/freelancer/freelancer?email=${email}`);
         const freelancer = freelancerResponse.data;
-        
-        // Store freelancer ID in localStorage
+
         localStorage.setItem('freelancerId', freelancer.id);
-        
-        // Fetch projects data
+
         const projectsResponse = await axiosInstance.get(`/api/projects/freelancer/${freelancer.id}`);
         const projects = projectsResponse.data || [];
-        
-        // Calculate stats
+
         const completedProjects = projects.filter(p => {
           const deadline = new Date(p.deadline);
           const now = new Date();
           return now > deadline;
         }).length;
-        
+
         const activeProjects = projects.filter(p => {
           const deadline = new Date(p.deadline);
           const now = new Date();
           return now <= deadline;
         }).length;
-        
-        // Get recent projects (last 5 completed)
+
         const recentCompleted = projects
           .filter(p => {
             const deadline = new Date(p.deadline);
@@ -101,40 +100,57 @@ const FreelancerDashboard = () => {
   }, []);
 
   const calculateProfileCompleteness = () => {
-    let completeness = 30; // Base score
+    let completeness = 30;
     if (freelancerData.name) completeness += 20;
     if (freelancerData.skills?.length > 0) completeness += 30;
     if (freelancerData.earnings > 0) completeness += 20;
-    return Math.min(completeness, 100); // Cap at 100%
+    return Math.min(completeness, 100);
   };
 
   const renderOverview = () => (
     <div className="dashboard-metrics-grid">
       <div className="dashboard-metric-card earnings-card">
-        <DollarSign className="metric-icon" />
-        <div>
+        <div className="metric-icon-container">
+          <DollarSign className="metric-icon" />
+        </div>
+        <div className="metric-content">
           <h3>Total Earnings</h3>
           <p>${freelancerData.earnings.toLocaleString()}</p>
         </div>
       </div>
+      
       <div className="dashboard-metric-card projects-card">
-        <CheckCircle className="metric-icon" />
-        <div>
+        <div className="metric-icon-container">
+          <CheckCircle className="metric-icon" />
+        </div>
+        <div className="metric-content">
           <h3>Completed Projects</h3>
           <p>{freelancerData.completedProjects}</p>
         </div>
       </div>
+      
       <div className="dashboard-metric-card active-projects-card">
-        <Clock className="metric-icon" />
-        <div>
+        <div className="metric-icon-container">
+          <Clock className="metric-icon" />
+        </div>
+        <div className="metric-content">
           <h3>Active Projects</h3>
           <p>{freelancerData.activeProjects}</p>
         </div>
       </div>
+      
       <div className="dashboard-metric-card profile-card">
-        <Zap className="metric-icon" />
-        <div>
+        <div className="metric-icon-container">
+          <Zap className="metric-icon" />
+        </div>
+        <div className="metric-content">
           <h3>Profile Completeness</h3>
+          <div className="progress-container">
+            <div 
+              className="progress-bar" 
+              style={{ width: `${calculateProfileCompleteness()}%` }}
+            ></div>
+          </div>
           <p>{calculateProfileCompleteness()}%</p>
         </div>
       </div>
@@ -143,107 +159,73 @@ const FreelancerDashboard = () => {
 
   const renderRecentProjects = () => (
     <div className="recent-projects-container">
-      <h2>Recent Projects</h2>
+      <div className="section-header">
+        <h2>Recent Projects</h2>
+        <button className="view-all-btn">View All</button>
+      </div>
+      
       {recentProjects.length > 0 ? (
-        recentProjects.map(project => (
-          <div key={project.id} className="project-item">
-            <div className="project-details">
-              <h3>{project.title}</h3>
-              <p>{project.client?.name || 'Client'}</p>
+        <div className="projects-list">
+          {recentProjects.map(project => (
+            <div key={project.id} className="project-item">
+              <div className="project-details">
+                <h3>{project.title}</h3>
+                <p className="client-name">{project.client?.name || 'Client'}</p>
+                <p className="project-description">{project.description?.substring(0, 100)}...</p>
+              </div>
+              <div className="project-status">
+                <span className={`status-badge completed`}>
+                  Completed
+                </span>
+                <span className="project-earnings">
+                  ${project.budget?.toLocaleString() || '0'}
+                </span>
+              </div>
             </div>
-            <div className="project-status">
-              <span className={`status-badge completed`}>
-                Completed
-              </span>
-              <span className="project-earnings">
-                ${project.budget?.toLocaleString() || '0'}
-              </span>
-            </div>
-          </div>
-        ))
+          ))}
+        </div>
       ) : (
-        <p>No completed projects yet</p>
+        <div className="empty-state">
+          <FileText size={48} className="empty-icon" />
+          <p>No completed projects yet</p>
+          <button className="browse-projects-btn">Browse Projects</button>
+        </div>
       )}
+    </div>
+  );
+
+  const renderTaxEstimation = () => (
+    <div className="tax-estimation-container">
+      <div className="section-header">
+        <h2>Tax Estimation</h2>
+        <PieChart className="section-icon" />
+      </div>
+      <div className="tax-content">
+        {freelancerData.id && (
+          <TaxEstimationComponent freelancerId={freelancerData.id} />
+        )}
+      </div>
     </div>
   );
 
   const renderSidebar = () => (
     <div className="sidebar-container">
       <div className="profile-section">
-        <User className="profile-image" size={64} />
-        <h2>{freelancerData.name}</h2>
-        <p>{freelancerData.profession}</p>
-        <p className="profile-email">{freelancerData.email}</p>
-      </div>
-      <nav className="sidebar-navigation">
-        {[
-          { icon: Home, label: 'Overview', section: 'overview' },
-          { icon: Briefcase, label: 'Projects', section: 'projects' },
-          { icon: FileText, label: 'Browse Projects', section: 'browse-projects' },
-          { icon: DollarSign, label: 'Earnings', section: 'earnings' },
-          { icon: MessageCircle, label: 'Messages', section: 'messages' },
-          { icon: Settings, label: 'Settings', section: 'settings' }
-        ].map(({ icon: Icon, label, section }) => (
-          <button
-            key={section}
-            onClick={() => setActiveSection(section)}
-            className={`nav-item ${activeSection === section ? 'active' : ''}`}
-          >
-            <Icon className="nav-icon" />
-            {label}
-          </button>
-        ))}
-      </nav>
-    </div>
-  );
-
-  const renderMainContent = () => {
-    if (loading) {
-      return <div className="loading-container">Loading profile data...</div>;
-    }
-
-    switch(activeSection) {
-      case 'overview':
-        return (
-          <>
-            {renderOverview()}
-            {renderRecentProjects()}
-          </>
-        );
-      case 'projects':
-        return <ProjectsSection freelancerId={freelancerData.id} />;
-      case 'browse-projects':
-        return <BrowseProjectsSection />;
-      case 'earnings':
-        return <EarningsSection freelancerId={freelancerData.id} />;
-      case 'messages':
-        return <MessagesSection />;
-      case 'settings':
-        return <SettingsSection freelancerData={freelancerData} />;
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <div className="freelancer-dashboard-wrapper">
-    <div className="dashboard-sidebar">
-      {/* Sidebar content remains the same */}
-      <div className="profile-section">
         <div className="profile-avatar">
           {freelancerData.name?.charAt(0).toUpperCase() || 'F'}
         </div>
         <h2>{freelancerData.name || 'Freelancer'}</h2>
-        <p>{freelancerData.profession || 'Professional'}</p>
+        <p className="profession">{freelancerData.profession || 'Professional'}</p>
         <p className="profile-email">{freelancerData.email || 'email@example.com'}</p>
       </div>
-      
+
       <nav className="sidebar-navigation">
         {[
           { icon: Home, label: 'Overview', section: 'overview' },
           { icon: Briefcase, label: 'Projects', section: 'projects' },
           { icon: FileText, label: 'Browse Projects', section: 'browse-projects' },
           { icon: DollarSign, label: 'Earnings', section: 'earnings' },
+          { icon: PieChart, label: 'Financial Planning', section: 'financial-planning' },
           { icon: MessageCircle, label: 'Messages', section: 'messages' },
           { icon: Settings, label: 'Settings', section: 'settings' }
         ].map(({ icon: Icon, label, section }) => (
@@ -254,57 +236,85 @@ const FreelancerDashboard = () => {
           >
             <Icon className="nav-icon" />
             <span>{label}</span>
+            {activeSection === section && <div className="active-indicator"></div>}
           </button>
         ))}
       </nav>
     </div>
+  );
 
-    <div className="main-content-wrapper">
-      <div className="main-content-container">
+  return (
+    <div className="freelancer-dashboard-wrapper">
+      {renderSidebar()}
+
+      <div className="main-content-wrapper">
         {loading ? (
-          <div className="loading-spinner">Loading profile data...</div>
+          <div className="loading-spinner">
+            <div className="spinner"></div>
+            <p>Loading your dashboard...</p>
+          </div>
         ) : (
-          <>
+          <div className="main-content-container">
             {activeSection === 'overview' && (
               <>
+                <div className="welcome-banner">
+                  <h1>Welcome back, {freelancerData.name || 'Freelancer'}!</h1>
+                  <p>Here's what's happening with your work today</p>
+                </div>
+                
                 <div className="content-section">
                   {renderOverview()}
                 </div>
+                
                 <div className="content-section">
                   {renderRecentProjects()}
                 </div>
+                
+                <div className="content-section">
+                  {renderTaxEstimation()}
+                </div>
               </>
             )}
+            
             {activeSection === 'projects' && (
               <div className="content-section">
                 <ProjectsSection freelancerId={freelancerData.id} />
               </div>
             )}
+            
             {activeSection === 'browse-projects' && (
               <div className="content-section">
                 <BrowseProjectsSection />
               </div>
             )}
+            
             {activeSection === 'earnings' && (
               <div className="content-section">
                 <EarningsSection freelancerId={freelancerData.id} />
               </div>
             )}
+            
+            {activeSection === 'financial-planning' && (
+              <div className="content-section">
+                <FinancialPlanningSection freelancerId={freelancerData.id} />
+              </div>
+            )}
+            
             {activeSection === 'messages' && (
               <div className="content-section">
                 <MessagesSection />
               </div>
             )}
+            
             {activeSection === 'settings' && (
               <div className="content-section">
                 <SettingsSection freelancerData={freelancerData} />
               </div>
             )}
-          </>
+          </div>
         )}
       </div>
     </div>
-  </div>
   );
 };
 
