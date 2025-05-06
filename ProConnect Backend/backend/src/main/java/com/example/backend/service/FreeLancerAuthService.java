@@ -14,7 +14,9 @@ import com.example.backend.security.JwtUtil;
 import com.example.backend.entity.Skill;
 import com.example.backend.repository.SkillRepository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,6 +61,16 @@ public class FreeLancerAuthService {
     public Freelancer findFreelancerByEmail(String email) {
         return freelancerRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Freelancer not found"));
+    }
+
+    @Transactional
+    public void updateProfileImage(String email, MultipartFile file) throws IOException {
+        Freelancer freelancer = freelancerRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Freelancer not found"));
+
+        freelancer.setProfileImage(file.getBytes());
+        freelancer.setProfileImageContentType(file.getContentType());
+        freelancerRepository.save(freelancer);
     }
 
     public List<Skill> getFreelancerSkills(Long freelancerId) {
