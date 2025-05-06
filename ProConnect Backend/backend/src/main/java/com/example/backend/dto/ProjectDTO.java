@@ -26,6 +26,17 @@ public class ProjectDTO {
     @NotBlank(message = "Required skills are required")
     private String requiredSkills;
 
+    @NotBlank(message = "Project category is required")
+    private String category;
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
     private String status;
     private String clientEmail; // To associate project with client
 

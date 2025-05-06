@@ -36,6 +36,7 @@ const ClientDashboard = () => {
     description: '',
     budget: '',
     deadline: '',
+    category: '',
     requiredSkills: ''
   });
   const [formErrors, setFormErrors] = useState({});
@@ -256,7 +257,7 @@ const ClientDashboard = () => {
     if (!projectForm.description.trim()) {
       errors.description = 'Project description is required';
     }
-    
+    if (!projectForm.category) errors.category = 'Category is required';
     if (!projectForm.budget.trim()) {
       errors.budget = 'Budget is required';
     } else if (isNaN(parseFloat(projectForm.budget)) || parseFloat(projectForm.budget) <= 0) {
@@ -309,6 +310,7 @@ const ClientDashboard = () => {
         budget: parseFloat(projectForm.budget),
         deadline: projectForm.deadline,
         requiredSkills: projectForm.requiredSkills,
+        category:projectForm.category,
         clientEmail: clientEmail
       };
       
@@ -320,6 +322,7 @@ const ClientDashboard = () => {
         description: '',
         budget: '',
         deadline: '',
+        category:'',
         requiredSkills: ''
       });
       
@@ -573,6 +576,25 @@ const ClientDashboard = () => {
                 ></textarea>
                 {formErrors.description && <span className="error-text">{formErrors.description}</span>}
               </div>
+
+              <div className="form-group">
+                <label htmlFor="category">Project Category</label>
+                <select
+                    id="category"
+                    value={projectForm.category}
+                    onChange={handleInputChange}
+                    className={formErrors.category ? 'error' : ''}
+                >
+                    <option value="">Select a category</option>
+                    <option value="Web Development">Web Development</option>
+                    <option value="Mobile App">Mobile App</option>
+                    <option value="UI/UX Design">UI/UX Design</option>
+                    <option value="Data Science">Data Science</option>
+                    <option value="DevOps">DevOps</option>
+                    <option value="Other">Other</option>
+                </select>
+                {formErrors.category && <span className="error-text">{formErrors.category}</span>}
+            </div>
               
               <div className="form-row">
                 <div className="form-group">

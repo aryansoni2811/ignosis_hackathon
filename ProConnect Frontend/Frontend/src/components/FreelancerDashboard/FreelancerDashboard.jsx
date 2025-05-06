@@ -22,6 +22,7 @@ import EarningsSection from './EarningsSection';
 import MessagesSection from './MessagesSection';
 import SettingsSection from './SettingsSection';
 import BrowseProjectsSection from './BrowseProjectsSection';
+import AnalysisSection from './AnalysisSection';
 import '../../App.css';
 import FinancialPlanningSection from './FinancialPlanningSection';
 
@@ -118,7 +119,7 @@ const FreelancerDashboard = () => {
           <p>${freelancerData.earnings.toLocaleString()}</p>
         </div>
       </div>
-      
+
       <div className="dashboard-metric-card projects-card">
         <div className="metric-icon-container">
           <CheckCircle className="metric-icon" />
@@ -128,7 +129,7 @@ const FreelancerDashboard = () => {
           <p>{freelancerData.completedProjects}</p>
         </div>
       </div>
-      
+
       <div className="dashboard-metric-card active-projects-card">
         <div className="metric-icon-container">
           <Clock className="metric-icon" />
@@ -138,7 +139,7 @@ const FreelancerDashboard = () => {
           <p>{freelancerData.activeProjects}</p>
         </div>
       </div>
-      
+
       <div className="dashboard-metric-card profile-card">
         <div className="metric-icon-container">
           <Zap className="metric-icon" />
@@ -146,8 +147,8 @@ const FreelancerDashboard = () => {
         <div className="metric-content">
           <h3>Profile Completeness</h3>
           <div className="progress-container">
-            <div 
-              className="progress-bar" 
+            <div
+              className="progress-bar"
               style={{ width: `${calculateProfileCompleteness()}%` }}
             ></div>
           </div>
@@ -163,7 +164,7 @@ const FreelancerDashboard = () => {
         <h2>Recent Projects</h2>
         <button className="view-all-btn">View All</button>
       </div>
-      
+
       {recentProjects.length > 0 ? (
         <div className="projects-list">
           {recentProjects.map(project => (
@@ -226,6 +227,7 @@ const FreelancerDashboard = () => {
           { icon: FileText, label: 'Browse Projects', section: 'browse-projects' },
           { icon: DollarSign, label: 'Earnings', section: 'earnings' },
           { icon: PieChart, label: 'Financial Planning', section: 'financial-planning' },
+          { icon: TrendingUp, label: 'Market Analysis', section: 'analysis' }, // New menu item
           { icon: MessageCircle, label: 'Messages', section: 'messages' },
           { icon: Settings, label: 'Settings', section: 'settings' }
         ].map(({ icon: Icon, label, section }) => (
@@ -261,51 +263,57 @@ const FreelancerDashboard = () => {
                   <h1>Welcome back, {freelancerData.name || 'Freelancer'}!</h1>
                   <p>Here's what's happening with your work today</p>
                 </div>
-                
+
                 <div className="content-section">
                   {renderOverview()}
                 </div>
-                
+
                 <div className="content-section">
                   {renderRecentProjects()}
                 </div>
-                
+
                 <div className="content-section">
                   {renderTaxEstimation()}
                 </div>
               </>
             )}
-            
+
             {activeSection === 'projects' && (
               <div className="content-section">
                 <ProjectsSection freelancerId={freelancerData.id} />
               </div>
             )}
-            
+
             {activeSection === 'browse-projects' && (
               <div className="content-section">
                 <BrowseProjectsSection />
               </div>
             )}
-            
+
+            {activeSection === 'analysis' && (
+              <div className="content-section">
+                <AnalysisSection />
+              </div>
+            )}
+
             {activeSection === 'earnings' && (
               <div className="content-section">
                 <EarningsSection freelancerId={freelancerData.id} />
               </div>
             )}
-            
+
             {activeSection === 'financial-planning' && (
               <div className="content-section">
                 <FinancialPlanningSection freelancerId={freelancerData.id} />
               </div>
             )}
-            
+
             {activeSection === 'messages' && (
               <div className="content-section">
                 <MessagesSection />
               </div>
             )}
-            
+
             {activeSection === 'settings' && (
               <div className="content-section">
                 <SettingsSection freelancerData={freelancerData} />

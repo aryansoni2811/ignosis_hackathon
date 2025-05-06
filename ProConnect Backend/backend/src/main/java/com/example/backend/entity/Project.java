@@ -37,6 +37,14 @@ public class Project {
     @Column(nullable = false)
     private String requiredSkills;
 
+    @Getter
+    @Column(nullable = false)
+    private String category;
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
     public void setFreelancer(Freelancer freelancer) {
         this.freelancer = freelancer;
     }

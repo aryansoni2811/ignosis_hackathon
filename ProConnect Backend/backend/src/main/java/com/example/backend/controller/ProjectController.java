@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/projects")
@@ -55,6 +56,11 @@ public class ProjectController {
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
         projectService.deleteProject(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/category-stats")
+    public ResponseEntity<Map<String, Long>> getProjectCategoryStatistics() {
+        return ResponseEntity.ok(projectService.getProjectCategoryStats());
     }
 
     @GetMapping("/search")
