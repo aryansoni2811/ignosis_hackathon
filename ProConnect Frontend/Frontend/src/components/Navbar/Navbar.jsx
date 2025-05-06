@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './Navbar.css';
-import defaultAvatar from '../../assets/1.jpg'; // Make sure to add this image
 import { FaUserCircle } from 'react-icons/fa';
 
 const Navbar = () => {
