@@ -1,0 +1,309 @@
+/* Enhanced Color Palette with Accessibility */
+:root {
+  --primary-color: #1a73e8;     /* Vibrant blue */
+  --secondary-color: #4285f4;   /* Lighter blue */
+  --tertiary-color: #f1f3f4;    /* Light gray background */
+  --quaternary-color: #202124;  /* Dark gray for footer */
+  --text-color: #202124;        /* Dark text */
+  --background-color: #ffffff;  /* White background */
+  --accent-color: #34a853;      /* Green for positive actions */
+  --hover-color: #e6f2ff;       /* Soft blue for hover states */
+  --navbar-height: 60px;
+}
+
+/* Modern Reset and Base Styles */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  width: 100%;
+  min-height: 100vh;
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+/* Responsive Navbar with Enhanced Interactivity */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: var(--navbar-height);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 5%;
+  background-color: var(--primary-color);
+  color: white;
+  
+ 
+  
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.nav-links {
+  display: flex;
+  list-style: none;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.nav-links li {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.nav-links li::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -5px;
+  left: 0;
+  background-color: white;
+  transition: width 0.3s ease;
+}
+
+.nav-links li:hover::after {
+  width: 100%;
+}
+
+.main-content {
+  flex: 1;
+  width: 100%;
+  padding-top: var(--navbar-height); /* This pushes content down */
+  min-height: calc(100vh - var(--navbar-height));
+}
+
+.dashboard-container {
+  padding: 20px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.login-btn {
+  background-color: white;
+  color: var(--primary-color);
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 24px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.login-btn:hover {
+  background-color: var(--hover-color);
+  transform: translateY(-2px);
+}
+
+/* Hero Section with Modern Design */
+.hero-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 6rem 2rem;
+  background-color: var(--tertiary-color);
+  min-height: calc(100vh - 80px);
+  width: 100%;
+}
+
+.hero-section h1 {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--primary-color);
+  max-width: 800px;
+}
+
+.hero-section p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  max-width: 600px;
+  color: var(--text-color);
+}
+
+.cta-btn {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.cta-btn:hover {
+  background-color: var(--secondary-color);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+}
+
+/* Footer with Modern Design */
+.footer {
+  text-align: center;
+  padding: 1.5rem;
+  background-color: var(--quaternary-color);
+  color: white;
+  width: 100%;
+}
+
+/* Responsive Design with Enhanced Breakpoints */
+@media screen and (max-width: 768px) {
+  :root {
+    --navbar-height: 50px;
+  }
+
+  .navbar {
+    flex-direction: column;
+    padding: 1rem;
+  }
+
+  .nav-links {
+    margin-top: 1rem;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .main-content {
+    padding-top: var(--navbar-height);
+  }
+
+  .hero-section h1 {
+    font-size: 2.5rem;
+  }
+
+  .hero-section p {
+    font-size: 1rem;
+  }
+
+  .cta-btn {
+    padding: 0.75rem 1.5rem;
+  }
+}
+
+/* Accessibility and Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
+
+/* Print Styles */
+@media print {
+  body {
+    color: black;
+    background: white;
+  }
+
+  .navbar, .hero-section {
+    display: block;
+    width: 100%;
+  }
+}
+
+
+
+
+/* Enhanced Color Palette with Accessibility */
+:root {
+  --primary-color: #1a73e8;     /* Vibrant blue */
+  --secondary-color: #4285f4;   /* Lighter blue */
+  --tertiary-color: #f1f3f4;    /* Light gray background */
+  --quaternary-color: #202124;  /* Dark gray for footer */
+  --text-color: #202124;        /* Dark text */
+  --background-color: #ffffff;  /* White background */
+  --background-light: #ffffff;  /* Light background for cards */
+  --text-secondary: #5f6368;    /* Secondary text color */
+  --border-color: #dadce0;      /* Border color */
+  --shadow-color: rgba(0,0,0,0.1);  /* Shadow color */
+  --accent-color: #34a853;      /* Green for positive actions */
+  --hover-color: #e6f2ff;       /* Soft blue for hover states */
+}
+
+/* Modern Reset and Base Styles */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+/* Ensure full screen layout for root container */
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100vw;
+  max-width: 100%;
+}
+
+/* App container to ensure full screen coverage */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+  html, body {
+    font-size: 14px;
+  }
+}
+
+/* Hide horizontal scrollbar */
+body {
+  overflow-x: hidden;
+}
+
+/* Ensure images and media are responsive */
+img, video, iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Accessibility and Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
+
+/* Print Styles */
+@media print {
+  body {
+    color: black;
+    background: white;
+  }
+}

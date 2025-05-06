@@ -1,0 +1,58 @@
+.login-selection {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 80px);
+    background-color: var(--tertiary-color);
+    padding: 2rem;
+  }
+  
+  .login-selection h1 {
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+    text-align: center;
+  }
+  
+  .login-selection > p {
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+  
+  .card-container {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    width: 100%;
+    max-width: 1000px;
+  }
+  
+  .card {
+    background-color: var(--background-light);
+    padding: 2.5rem;
+    border-radius: 16px;
+    width: 300px;
+    text-align: center;
+    box-shadow: 0 10px 25px var(--shadow-color);
+    border: 2px solid transparent;
+    transition: all 0.4s ease;
+    cursor: pointer;
+  }
+  
+  .card:hover {
+    transform: translateY(-10px);
+    border-color: var(--primary-color);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+  }
+  
+  .card h2 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+  }
+  
+  @media (max-width: 768px) {
+    .card-container {
+      flex-direction: column;
+      align-items: center;
+    }
+  }

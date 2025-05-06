@@ -1,0 +1,313 @@
+/* Global Dashboard Styles */
+.freelancer-dashboard {
+    min-height: calc(100vh - 80px); /* Subtract navbar height */
+    background-color: #f4f5f7;
+    padding: 2rem;
+    font-family: 'Inter', sans-serif;
+    margin-top: 80px; /* Adjust based on actual navbar height */
+}
+
+.freelancer-dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  margin-top: 60px; /* Account for navbar */
+}
+
+.dashboard-sidebar {
+  width: 280px;
+  height: calc(100vh - 60px);
+  position: fixed;
+  left: 0;
+  top: 60px;
+  background: #ffffff;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+  overflow-y: auto;
+  z-index: 100;
+  padding: 1.5rem;
+}
+
+.main-content-wrapper {
+  flex: 1;
+  margin-left: 280px;
+  min-height: calc(100vh - 60px);
+  overflow-y: auto;
+}
+
+.main-content-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 2rem 4rem 2rem;
+}
+
+.content-section {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+
+.dashboard-layout {
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    gap: 1.5rem;
+}
+
+.sidebar-wrapper {
+    max-width: 300px;
+}
+  
+  /* Sidebar Styles */
+  .sidebar-container {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+}
+  
+.profile-section {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e6e8f0;
+}
+
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1rem;
+  border-radius: 50%;
+  background: #1a73e8;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+  
+  .profile-image {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 1rem;
+  }
+  
+  .profile-section h2 {
+    font-size: 1.25rem;
+    margin: 0.5rem 0;
+    color: #2d3748;
+  }
+  
+  .profile-section p {
+    margin: 0.25rem 0;
+    color: #718096;
+    font-size: 0.875rem;
+  }
+
+  .profile-email {
+    font-size: 0.75rem;
+    color: #a0aec0;
+  }
+
+  .sidebar-navigation {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  
+  .nav-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  color: #4a5568;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+  
+.nav-item:hover {
+  background: rgba(26, 115, 232, 0.1);
+}
+
+.nav-item.active {
+  background: rgba(26, 115, 232, 0.1);
+  color: #1a73e8;
+  font-weight: 500;
+}
+
+.nav-icon {
+  margin-right: 0.75rem;
+  width: 20px;
+  height: 20px;
+}
+  
+  /* Dashboard Metrics Grid */
+  .dashboard-metric-card {
+    display: flex;
+    align-items: center;
+    background: white;
+    border-radius: 8px;
+    padding: 1.25rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+
+  .dashboard-main-content {
+    flex: 1;
+    margin-left: 280px; /* Same as sidebar width */
+    min-height: calc(100vh - 60px);
+    background: #f8f9fa;
+    overflow-y: auto; /* Make main content scrollable */
+  }
+
+  .content-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+  
+  
+  .dashboard-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .metric-icon {
+    margin-right: 1rem;
+    color: #4a5568;
+  }
+  
+  .dashboard-metric-card h3 {
+    font-size: 0.875rem;
+    color: #718096;
+    margin-bottom: 0.25rem;
+  }
+  
+  .dashboard-metric-card p {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2d3748;
+  }
+  
+  .earnings-card .metric-icon { color: #48bb78; }
+  .projects-card .metric-icon { color: #4299e1; }
+  .active-projects-card .metric-icon { color: #ecc94b; }
+  .profile-card .metric-icon { color: #9f7aea; }
+  
+  /* Recent Projects Styles */
+  .recent-projects-container {
+    padding: 1.5rem;
+  }
+
+  .recent-projects-container h2 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    color: #2d3748;
+  }
+
+  .freelancer-dashboard-wrapper {
+    display: flex;
+    min-height: 100vh;
+    padding-top: 60px; /* Navbar height */
+    background-color: #f8f9fa;
+  }
+  
+  .project-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid #e6e8f0;
+  }
+  
+  .project-item:last-child {
+    border-bottom: none;
+  }
+  
+  .project-details h3 {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .project-details p {
+    color: #718096;
+    font-size: 0.875rem;
+  }
+
+  .loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    color: #718096;
+  }
+  
+  
+  .project-status {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  
+  .status-badge.completed {
+    background: #c6f6d5;
+    color: #22543d;
+  }
+  
+  .status-badge.in-progress {
+    background-color: #fefcbf;
+    color: #744210;
+  }
+  
+  .project-earnings {
+    color: #48bb78;
+    font-weight: 600;
+  }
+  
+  @media (max-width: 1024px) {
+    .dashboard-metrics-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .freelancer-dashboard-wrapper {
+      flex-direction: column;
+    }
+    
+    .dashboard-sidebar {
+      position: static;
+      width: 100%;
+      height: auto;
+    }
+    
+    .main-content-wrapper {
+      margin-left: 0;
+    }
+    
+    .main-content-container {
+      padding: 1rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .dashboard-metrics-grid {
+      grid-template-columns: 1fr;
+    }
+  }

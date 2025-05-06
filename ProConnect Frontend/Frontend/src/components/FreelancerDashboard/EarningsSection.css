@@ -1,0 +1,150 @@
+.earnings-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.earnings-overview {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.total-earnings-card {
+    background-color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+  
+  .earnings-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #e6e8f0;
+    padding-bottom: 1rem;
+  }
+  
+  .earnings-icon {
+    color: #48bb78;
+    stroke-width: 2;
+  }
+  
+  .earnings-header h2 {
+    font-size: 1.25rem;
+    color: #2d3748;
+  }
+  
+  .total-amount h3 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 0.5rem;
+  }
+  
+  .earnings-trend {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+  }
+  
+  .earnings-trend.positive {
+    color: #48bb78;
+  }
+  
+  .monthly-earnings-chart {
+    background-color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  }
+  
+  .monthly-earnings-chart h3 {
+    font-size: 1.25rem;
+    color: #2d3748;
+    margin-bottom: 1rem;
+  }
+  
+  .chart-bars {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    height: 200px;
+  }
+  
+  .chart-bar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .chart-bar {
+    width: 30px;
+    background-color: #4299e1;
+    border-radius: 4px;
+  }
+  
+  .chart-bar-container span {
+    color: #718096;
+    font-size: 0.75rem;
+  }
+  
+  .recent-transactions {
+    background-color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  }
+  
+  .section-header {
+    border-bottom: 1px solid #e6e8f0;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .section-header h2 {
+    font-size: 1.25rem;
+    color: #2d3748;
+  }
+  
+  .transaction-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid #e6e8f0;
+  }
+  
+  .transaction-item:last-child {
+    border-bottom: none;
+  }
+  
+  .transaction-details h3 {
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 0.25rem;
+  }
+  
+  .transaction-details p {
+    color: #718096;
+    font-size: 0.875rem;
+  }
+  
+  .transaction-amount {
+    text-align: right;
+  }
+  
+  .transaction-amount span {
+    font-weight: 600;
+    color: #48bb78;
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+  
+  .transaction-amount p {
+    color: #718096;
+    font-size: 0.75rem;
+  }

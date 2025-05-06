@@ -1,0 +1,12 @@
+/* Footer Styles */
+.footer {
+    text-align: center;
+    padding: 1rem;
+    background-color: var(--quaternary-color);
+    color: white;
+  }
+  
+  .footer p {
+    margin: 0;
+  }
+  
