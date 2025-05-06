@@ -1,7 +1,10 @@
 package com.example.backend.controller;
 
 import com.example.backend.dto.ProjectDTO;
+import com.example.backend.entity.Project;
+import com.example.backend.entity.SkillStatisticsEntity;
 import com.example.backend.service.ProjectService;
+import com.example.backend.service.SkillStatisticsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +12,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/projects")
@@ -16,6 +20,9 @@ public class ProjectController {
 
     @Autowired
     private ProjectService projectService;
+
+    @Autowired
+    private SkillStatisticsService skillStatisticsService;
 
     @GetMapping
     public ResponseEntity<List<ProjectDTO>> getAllProjects() {
@@ -34,7 +41,17 @@ public class ProjectController {
 
     @PostMapping
     public ResponseEntity<ProjectDTO> createProject(@RequestBody @Validated ProjectDTO projectDto) {
-        return new ResponseEntity<>(projectService.createProject(projectDto), HttpStatus.CREATED);
+        ProjectDTO createdProject = projectService.createProject(projectDto);
+
+        // Update skill statistics after project creation
+        if (projectDto.getRequiredSkills() != null && !projectDto.getRequiredSkills().isEmpty()) {
+            String[] skills = projectDto.getRequiredSkills().split(",");
+            for (String skill : skills) {
+                skillStatisticsService.incrementSkillCount(skill.trim());
+            }
+        }
+
+        return ResponseEntity.ok(createdProject);
     }
 
     @PutMapping("/{id}")
