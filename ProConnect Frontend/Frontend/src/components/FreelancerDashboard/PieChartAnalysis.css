@@ -1,0 +1,28 @@
+.pie-chart-analysis {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .pie-chart-analysis .section-header {
+    margin-bottom: 1.5rem;
+  }
+  
+  .pie-chart-analysis .section-header h2 {
+    font-size: 1.5rem;
+    color: #333;
+  }
+  
+  .pie-chart-analysis .section-header p {
+    color: #666;
+    margin-top: 0.5rem;
+  }
+  
+  .pie-chart-analysis .total-skills {
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+  }

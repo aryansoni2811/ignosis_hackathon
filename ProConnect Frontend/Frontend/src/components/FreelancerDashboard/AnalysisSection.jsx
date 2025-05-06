@@ -4,6 +4,7 @@ import { Bar, Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 import axiosInstance from '../config/axiosConfig';
 import './AnalysisSection.css';
+import PieChartAnalysis from './PieChartAnalysis';
 
 // Register ChartJS components
 ChartJS.register(
@@ -195,6 +196,7 @@ const AnalysisSection = () => {
             ))}
         </ul>
       </div>
+      <div><PieChartAnalysis/></div>
     </div>
   );
 };
