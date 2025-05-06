@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import axiosInstance from '../config/axiosConfig';
 import '../Form/Form.css';
 
 const FreelancerSignup = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -28,7 +30,7 @@ const FreelancerSignup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
+
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
@@ -44,9 +46,13 @@ const FreelancerSignup = () => {
       });
 
       if (response.data.success) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('userType', 'freelancer');
-        localStorage.setItem('freelancerEmail', formData.email);
+        // Use the login function from AuthContext instead of directly setting localStorage
+        login({
+          token: response.data.token,
+          userType: 'freelancer',
+          email: formData.email,
+          name: formData.name
+        });
         navigate('/freelancer-dashboard');
       } else {
         setError(response.data.message || 'Signup failed');
@@ -60,53 +66,53 @@ const FreelancerSignup = () => {
   };
 
   return (
-    <div className="form-container">
-      <h1>Freelancer Signup</h1>
-      {error && <div className="error-message">{error}</div>}
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="name"
-          placeholder="Name"
-          value={formData.name}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={formData.password}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="password"
-          name="confirmPassword"
-          placeholder="Confirm Password"
-          value={formData.confirmPassword}
-          onChange={handleChange}
-          required
-        />
-        <button type="submit" disabled={loading}>
-          {loading ? 'Signing Up...' : 'Sign Up'}
-        </button>
-      </form>
-      <p>
-        Already have an account?{' '}
-        <span onClick={handleNavigate} className="login-link">
+      <div className="form-container">
+        <h1>Freelancer Signup</h1>
+        {error && <div className="error-message">{error}</div>}
+        <form onSubmit={handleSubmit}>
+          <input
+              type="text"
+              name="name"
+              placeholder="Name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+          />
+          <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+          />
+          <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+          />
+          <input
+              type="password"
+              name="confirmPassword"
+              placeholder="Confirm Password"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              required
+          />
+          <button type="submit" disabled={loading}>
+            {loading ? 'Signing Up...' : 'Sign Up'}
+          </button>
+        </form>
+        <p>
+          Already have an account?{' '}
+          <span onClick={handleNavigate} className="login-link">
           Login
         </span>
-      </p>
-    </div>
+        </p>
+      </div>
   );
 };
 
