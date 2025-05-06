@@ -25,6 +25,9 @@ public class ProjectService {
     private ProjectRepository projectRepository;
 
     @Autowired
+    private RatingService ratingService;
+
+    @Autowired
     private ClientRepository clientRepository;
 
     public List<ProjectDTO> getAllProjects() {
@@ -39,6 +42,39 @@ public class ProjectService {
 
         return projectRepository.findByClientOrderByCreatedAtDesc(client).stream()
                 .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<ProjectDTO> getProjectsByClientWithRatingInfo(String clientEmail, Long clientId) {
+        Client client = clientRepository.findByEmail(clientEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("Client not found with email: " + clientEmail));
+
+        List<Project> projects = projectRepository.findByClientOrderByCreatedAtDesc(client);
+
+        return projects.stream()
+                .map(project -> {
+                    ProjectDTO dto = convertToDto(project);
+
+                    // Check if the project has a freelancer assigned
+                    if (project.getFreelancer() != null) {
+                        Long freelancerId = project.getFreelancer().getId();
+
+                        // Check if the client has already rated this project
+                        boolean hasRated = false;
+                        if (clientId != null && project.getId() != null) {
+                            hasRated = ratingService.hasClientRatedFreelancerForProject(
+                                    freelancerId, clientId, project.getId());
+                        }
+
+                        dto.setHasRated(hasRated);
+
+                        // Get freelancer rating stats
+                        Map<String, Object> ratingStats = ratingService.getFreelancerRatingStats(freelancerId);
+                        dto.setFreelancerRating(ratingStats);
+                    }
+
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -169,6 +205,15 @@ public class ProjectService {
         dto.setRequiredSkills(project.getRequiredSkills());
         dto.setStatus(project.getStatus());
         dto.setClientEmail(project.getClient().getEmail());
+        dto.setIsPaid(project.getPaid());
+
+        // Add freelancer info if assigned
+        if (project.getFreelancer() != null) {
+            dto.setFreelancerId(project.getFreelancer().getId());
+            dto.setFreelancerName(project.getFreelancer().getName());
+            dto.setFreelancerEmail(project.getFreelancer().getEmail());
+        }
+
         return dto;
     }
 }

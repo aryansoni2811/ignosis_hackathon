@@ -67,4 +67,11 @@ public class ProjectController {
     public ResponseEntity<List<ProjectDTO>> searchProjectsBySkills(@RequestParam String skills) {
         return ResponseEntity.ok(projectService.searchProjectsBySkills(skills));
     }
+
+    @GetMapping("/client/with-ratings")
+    public ResponseEntity<List<ProjectDTO>> getProjectsByClientWithRatings(
+            @RequestParam String email,
+            @RequestParam(required = false) Long clientId) {
+        return ResponseEntity.ok(projectService.getProjectsByClientWithRatingInfo(email, clientId));
+    }
 }

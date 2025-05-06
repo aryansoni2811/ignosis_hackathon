@@ -41,18 +41,6 @@ public class Project {
     @Column(nullable = false)
     private String category;
 
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public void setFreelancer(Freelancer freelancer) {
-        this.freelancer = freelancer;
-    }
-
-    public void setCompletedAt(LocalDateTime completedAt) {
-        this.completedAt = completedAt;
-    }
-
     @Getter
     @Column(nullable = false)
     private String status = "Open"; // Open, In Progress, Completed
@@ -70,8 +58,6 @@ public class Project {
     @Getter
     @Column
     private LocalDateTime completedAt;
-
-
 
     @Getter
     @Column(nullable = false)
@@ -113,6 +99,10 @@ public class Project {
         this.requiredSkills = requiredSkills;
     }
 
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
     public void setStatus(String status) {
         this.status = status;
     }
@@ -121,12 +111,20 @@ public class Project {
         this.client = client;
     }
 
+    public void setFreelancer(Freelancer freelancer) {
+        this.freelancer = freelancer;
+    }
+
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public void setCompletedAt(LocalDateTime completedAt) {
+        this.completedAt = completedAt;
     }
 
     public Boolean getPaid() {
