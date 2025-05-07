@@ -1,5 +1,6 @@
 import React from 'react';
 
+import './DashboardMessages.css';
 const DashboardMessages = () => {
   return (
     <div className="messages-section">

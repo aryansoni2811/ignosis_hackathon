@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Home, 
-  Plus, 
-  User, 
-  MessageCircle, 
-  Briefcase 
+import {
+  Home,
+  Plus,
+  User,
+  MessageCircle,
+  Briefcase
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import DashboardHome from './DashboardHome';
 import DashboardProposals from './DashboardProposals';
 import PostProject from './PostProject';
@@ -14,7 +16,10 @@ import DashboardProfile from './DashboardProfile';
 import axiosInstance from '../config/axiosConfig';
 import './Client-Dashboard.css';
 
+
 const ClientDashboard = () => {
+  const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
   const [activeSection, setActiveSection] = useState('dashboard');
   const [clientData, setClientData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -25,35 +30,58 @@ const ClientDashboard = () => {
     pendingInvoices: 0
   });
 
+  // Check authentication
+  useEffect(() => {
+    if (!isAuthenticated || user?.userType !== 'client') {
+      navigate('/login');
+      return;
+    }
+  }, [isAuthenticated, user, navigate]);
+
   // Get client data
   useEffect(() => {
     const fetchClientData = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const clientEmail = localStorage.getItem('clientEmail');
-        
-        if (!token || !clientEmail) {
+        if (!user?.email || !user?.token) {
           throw new Error('Authentication required');
         }
-        
-        const response = await axiosInstance.get(`/api/auth/client?email=${clientEmail}`, {
+
+        const response = await axiosInstance.get(`/api/auth/client?email=${user.email}`, {
           headers: {
-            Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${user.token}`
           }
         });
         setClientData(response.data);
+
+        // Fetch project stats
+        const projectsResponse = await axiosInstance.get(`/api/projects/client?email=${user.email}`, {
+          headers: {
+            Authorization: `Bearer ${user.token}`
+          }
+        });
+
+        const stats = {
+          totalProjects: projectsResponse.data.length,
+          activeProjects: projectsResponse.data.filter(p => p.status === 'Open' || p.status === 'In Progress').length,
+          completedProjects: projectsResponse.data.filter(p => p.status === 'Completed').length,
+          pendingInvoices: projectsResponse.data.filter(p => p.status === 'Completed' && !p.isPaid).length || 0
+        };
+
+        setProjectStats(stats);
       } catch (error) {
         console.error('Error fetching client data:', error);
         if (error.response?.status === 401 || error.response?.status === 403) {
-          window.location.href = '/login';
+          navigate('/login');
         }
       } finally {
         setLoading(false);
       }
     };
-  
-    fetchClientData();
-  }, []);
+
+    if (isAuthenticated && user?.email) {
+      fetchClientData();
+    }
+  }, [isAuthenticated, user, navigate]);
 
   const navigationItems = [
     { icon: Home, label: 'Dashboard', section: 'dashboard' },
@@ -63,72 +91,75 @@ const ClientDashboard = () => {
     { icon: User, label: 'Profile', section: 'profile' }
   ];
 
-  // Render different sections based on activeSection
   const renderSection = () => {
     switch(activeSection) {
       case 'dashboard':
-        return <DashboardHome 
-                 clientData={clientData} 
-                 projectStats={projectStats} 
-                 setProjectStats={setProjectStats} 
-               />;
+        return <DashboardHome
+            clientData={clientData}
+            projectStats={projectStats}
+            setProjectStats={setProjectStats}
+        />;
       case 'proposals':
         return <DashboardProposals />;
       case 'post-project':
-        return <PostProject 
-                 setProjectStats={setProjectStats} 
-               />;
+        return <PostProject
+            setProjectStats={setProjectStats}
+        />;
       case 'messages':
         return <DashboardMessages />;
       case 'profile':
-        return <DashboardProfile 
-                 clientData={clientData} 
-                 loading={loading} 
-                 projectStats={projectStats} 
-               />;
+        return <DashboardProfile
+            clientData={clientData}
+            loading={loading}
+            projectStats={projectStats}
+        />;
       default:
-        return <DashboardHome 
-                 clientData={clientData} 
-                 projectStats={projectStats} 
-                 setProjectStats={setProjectStats} 
-               />;
+        return <DashboardHome
+            clientData={clientData}
+            projectStats={projectStats}
+            setProjectStats={setProjectStats}
+        />;
     }
   };
 
+  if (loading) {
+    return <div className="loading">Loading...</div>;
+  }
+
   return (
-    <div className="client-dashboard-container">
-      <div className="dashboard-sidebar">
-        <div className="user-profile">
-          <div className="user-avatar">
-            {clientData?.name?.charAt(0).toUpperCase() || 'C'}
+      <div className="cd-container">
+        <div className="cd-sidebar">
+          <div className="cd-profile">
+            <div className="cd-avatar">
+              {user?.name?.charAt(0).toUpperCase() || 'C'}
+            </div>
+            <h3>{user?.name || 'Loading...'}</h3>
+            <p>{user?.email || 'Loading...'}</p>
           </div>
-          <h3>{clientData?.name || 'Loading...'}</h3>
-          <p>{clientData?.email || 'Loading...'}</p>
+
+          <nav className="cd-nav">
+            <ul className="cd-menu">
+              {navigationItems.map((item, index) => (
+                  <li
+                      key={index}
+                      className={`cd-item ${activeSection === item.section ? 'cd-active' : ''}`}
+                      onClick={() => setActiveSection(item.section)}
+                  >
+                    <item.icon className="cd-icon" size={20} />
+                    <span>{item.label}</span>
+                  </li>
+              ))}
+            </ul>
+          </nav>
         </div>
 
-        <nav className="sidebar-nav">
-          <ul className="nav-menu">
-            {navigationItems.map((item, index) => (
-              <li 
-                key={index}
-                className={`nav-item ${activeSection === item.section ? 'active' : ''}`}
-                onClick={() => setActiveSection(item.section)}
-              >
-                <item.icon className="nav-icon" size={20} />
-                <span>{item.label}</span>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      </div>
-
-      <div className="dashboard-main-content">
-        <div className="content-wrapper">
-          {renderSection()}
+        <div className="cd-main">
+          <div className="cd-content">
+            {renderSection()}
+          </div>
         </div>
       </div>
-    </div>
   );
 };
 
-export default ClientDashboard;
+export default ClientDashboard

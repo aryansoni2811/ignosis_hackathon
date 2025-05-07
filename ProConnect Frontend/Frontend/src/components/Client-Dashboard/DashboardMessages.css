@@ -1,0 +1,50 @@
+/* Dashboard Messages Section */
+.messages-section {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    margin: 20px auto;
+}
+
+.messages-section h2 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.messages-container {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+.messages-container p {
+    font-size: 18px;
+    color: #777;
+    font-style: italic;
+}
+
+/* Optional: Add some hover effect on the section */
+.messages-section:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Media Queries for responsiveness */
+@media (max-width: 768px) {
+    .messages-section {
+        padding: 15px;
+    }
+
+    .messages-section h2 {
+        font-size: 20px;
+    }
+
+    .messages-container p {
+        font-size: 16px;
+    }
+}
