@@ -1,4 +1,3 @@
-// TaxEstimationComponent.jsx
 import React, { useState, useEffect } from 'react';
 import { 
   Percent, 
@@ -10,14 +9,15 @@ import {
   RefreshCw, 
   PieChart,
   Globe,
-  TrendingUp
+  TrendingUp,
+  Loader
 } from 'lucide-react';
 import axiosInstance from '../config/axiosConfig';
 import './TaxEstimationComponent.css';
 
 const TaxEstimationComponent = ({ freelancerId }) => {
   const [taxData, setTaxData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // Start with loading true
   const [infoVisible, setInfoVisible] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState('US');
   const [customEarnings, setCustomEarnings] = useState('');
@@ -26,43 +26,115 @@ const TaxEstimationComponent = ({ freelancerId }) => {
   );
   const [projectionMode, setProjectionMode] = useState(true);
   const [exchangeRates, setExchangeRates] = useState({});
-  const [exchangeRateLoading, setExchangeRateLoading] = useState(false);
+  const [exchangeRateLoading, setExchangeRateLoading] = useState(true);
   const [exchangeRateError, setExchangeRateError] = useState(null);
+  const [freelancerEarnings, setFreelancerEarnings] = useState(0);
 
+  // Enhanced country data with tax system info
   const countryOptions = [
-    { value: 'US', label: 'United States', currency: 'USD', symbol: '$' },
-    { value: 'UK', label: 'United Kingdom', currency: 'GBP', symbol: '£' },
-    { value: 'CA', label: 'Canada', currency: 'CAD', symbol: '$' },
-    { value: 'IN', label: 'India', currency: 'INR', symbol: '₹' },
-    { value: 'AU', label: 'Australia', currency: 'AUD', symbol: '$' },
-    { value: 'DE', label: 'Germany', currency: 'EUR', symbol: '€' }
+    { 
+      value: 'US', 
+      label: 'United States', 
+      currency: 'USD', 
+      symbol: '$',
+      taxSystem: 'Progressive (Federal + State + Self-Employment)'
+    },
+    { 
+      value: 'UK', 
+      label: 'United Kingdom', 
+      currency: 'GBP', 
+      symbol: '£',
+      taxSystem: 'Progressive (Income Tax + National Insurance)'
+    },
+    { 
+      value: 'CA', 
+      label: 'Canada', 
+      currency: 'CAD', 
+      symbol: '$',
+      taxSystem: 'Progressive (Federal + Provincial)'
+    },
+    { 
+      value: 'IN', 
+      label: 'India', 
+      currency: 'INR', 
+      symbol: '₹',
+      taxSystem: 'Progressive with Slabs'
+    },
+    { 
+      value: 'AU', 
+      label: 'Australia', 
+      currency: 'AUD', 
+      symbol: '$',
+      taxSystem: 'Progressive with Medicare Levy'
+    },
+    { 
+      value: 'DE', 
+      label: 'Germany', 
+      currency: 'EUR', 
+      symbol: '€',
+      taxSystem: 'Progressive with Solidarity Surcharge'
+    }
   ];
 
-  // Fallback exchange rates if API fails
+  // Fallback exchange rates if API fails (updated rates)
   const fallbackExchangeRates = {
     USD: 1,
     EUR: 0.93,
     GBP: 0.79,
     CAD: 1.36,
-    INR: 83.12,
-    AUD: 1.51
+    INR: 83.30,
+    AUD: 1.50
   };
 
   useEffect(() => {
-    fetchExchangeRates();
-  }, []);
+    const initializeComponent = async () => {
+      try {
+        // Get freelancer email from localStorage or session
+        const freelancerEmail = localStorage.getItem('freelancerEmail') || sessionStorage.getItem('freelancerEmail');
+        
+        if (!freelancerEmail) {
+          throw new Error('Freelancer email not found');
+        }
+
+        // Fetch freelancer earnings
+        const earningsResponse = await axiosInstance.get(`/api/freelancers/${freelancerEmail}/earnings`);
+        const earnings = earningsResponse.data.totalEarnings || 0;
+        setFreelancerEarnings(earnings);
+        setCustomEarnings(earnings.toString()); // Auto-populate earnings field
+        
+        // Fetch exchange rates
+        await fetchExchangeRates();
+        
+        // Now that we have initial data, we can calculate tax
+        await fetchTaxData();
+      } catch (error) {
+        console.error('Error initializing tax estimation:', error);
+        // Even if there's an error, we'll show the component with default values
+        await fetchExchangeRates(true); // Force fallback rates
+        await fetchTaxData();
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initializeComponent();
+  }, [freelancerId]);
 
   useEffect(() => {
-    if (Object.keys(exchangeRates).length > 0 || exchangeRateError) {
+    if (taxData) { // Only run when taxData exists (after initial load)
       fetchTaxData();
     }
-  }, [freelancerId, selectedCountry, joinDate, customEarnings, projectionMode, exchangeRates]);
+  }, [selectedCountry, joinDate, customEarnings, projectionMode, exchangeRates]);
 
-  const fetchExchangeRates = async () => {
+  const fetchExchangeRates = async (useFallback = false) => {
     setExchangeRateLoading(true);
     setExchangeRateError(null);
+    
     try {
-      // Using a free API (you might want to use your own backend in production)
+      if (useFallback) {
+        throw new Error('Forcing fallback rates');
+      }
+      
       const response = await axiosInstance.get(
         'https://api.exchangerate-api.com/v4/latest/USD'
       );
@@ -77,210 +149,208 @@ const TaxEstimationComponent = ({ freelancerId }) => {
   };
 
   const fetchTaxData = async () => {
-    setLoading(true);
     try {
       const currentCountry = countryOptions.find(c => c.value === selectedCountry);
-      const earningsInUSD = customEarnings ? parseFloat(customEarnings) : 11500;
+      const earningsInUSD = customEarnings ? parseFloat(customEarnings) : freelancerEarnings;
       const exchangeRate = exchangeRates[currentCountry.currency] || 1;
       const convertedAmount = earningsInUSD * exchangeRate;
       
-      const response = await axiosInstance.get(
-        `/api/freelancer/finance/tax-estimation/${freelancerId}?country=${selectedCountry}&joinDate=${joinDate}&earnings=${convertedAmount}&projection=${projectionMode}`
+      // Calculate months since joining
+      const join = new Date(joinDate);
+      const today = new Date();
+      const monthsActive = Math.max(
+        (today.getFullYear() - join.getFullYear()) * 12 + 
+        (today.getMonth() - join.getMonth()) + 
+        (today.getDate() >= join.getDate() ? 0 : -1),
+        1
       );
       
+      const monthsInYear = 12;
+      const monthsFactor = monthsActive / monthsInYear;
+      
+      // Project annual earnings if in projection mode
+      const projectedAnnualEarnings = projectionMode ? 
+        Math.round(convertedAmount / monthsFactor) : 
+        convertedAmount;
+
+      // Calculate tax based on selected country
+      const result = calculateTaxByCountry(selectedCountry, projectedAnnualEarnings);
+      
+      // Prorate tax if needed
+      const currentTaxLiability = projectionMode ? 
+        result.estimatedTax * monthsFactor : 
+        result.estimatedTax;
+      
       setTaxData({
-        ...response.data,
+        ...result,
+        earnings: projectedAnnualEarnings,
+        currentEarnings: convertedAmount,
+        monthsActive,
+        currentTaxLiability: Math.round(currentTaxLiability * 100) / 100,
+        projectedAnnual: projectionMode,
         currency: currentCountry.currency,
         currencySymbol: currentCountry.symbol,
         exchangeRate,
-        originalEarningsUSD: earningsInUSD
+        originalEarningsUSD: earningsInUSD,
+        taxSystem: currentCountry.taxSystem
       });
     } catch (error) {
-      console.error('Error fetching tax estimation:', error);
-      calculateClientSideEstimation();
-    } finally {
-      setLoading(false);
+      console.error('Error calculating tax estimation:', error);
+      // Don't set taxData to null here - we want to keep showing the last good data
     }
   };
 
-  const calculateClientSideEstimation = () => {
-    const currentCountry = countryOptions.find(c => c.value === selectedCountry);
-    const earningsInUSD = customEarnings ? parseFloat(customEarnings) : 11500;
-    const exchangeRate = exchangeRates[currentCountry.currency] || 1;
-    const convertedAmount = earningsInUSD * exchangeRate;
-    
-    // Calculate months since joining
-    const join = new Date(joinDate);
-    const today = new Date();
-    const monthsActive = 
-      (today.getFullYear() - join.getFullYear()) * 12 + 
-      (today.getMonth() - join.getMonth()) + 
-      (today.getDate() >= join.getDate() ? 0 : -1);
-    
-    const monthsInYear = 12;
-    const monthsFactor = Math.max(monthsActive, 1) / monthsInYear;
-    
-    // Project annual earnings
-    const projectedAnnualEarnings = projectionMode ? 
-      Math.round(convertedAmount / monthsFactor) : 
-      convertedAmount;
-
-    // Calculate tax based on selected country
-    const result = calculateTaxByCountry(selectedCountry, projectedAnnualEarnings);
-    
-    // Prorate tax if needed
-    const currentTaxLiability = projectionMode ? 
-      result.estimatedTax * monthsFactor : 
-      result.estimatedTax;
-    
-    setTaxData({
-      ...result,
-      earnings: projectedAnnualEarnings,
-      currentEarnings: convertedAmount,
-      monthsActive,
-      currentTaxLiability: Math.round(currentTaxLiability * 100) / 100,
-      projectedAnnual: projectionMode,
-      currency: currentCountry.currency,
-      currencySymbol: currentCountry.symbol,
-      exchangeRate,
-      originalEarningsUSD: earningsInUSD
-    });
-  };
-
+  // Enhanced tax calculation logic for each country
   const calculateTaxByCountry = (country, income) => {
+    income = Math.max(0, income); // Ensure income is not negative
+    
     let incomeTax = 0;
-    let selfEmploymentTax = 0;
-    let taxRate = 0;
+    let additionalTax = 0; // For taxes like self-employment, social security, etc.
+    let taxBrackets = [];
+    let taxDescription = '';
     
     switch (country) {
-      case 'US':
-        // Progressive tax brackets (2023 rates)
-        if (income <= 10275) {
-          incomeTax = income * 0.10;
-        } else if (income <= 41775) {
-          incomeTax = 10275 * 0.10 + (income - 10275) * 0.12;
-        } else if (income <= 89075) {
-          incomeTax = 10275 * 0.10 + (41775 - 10275) * 0.12 + (income - 41775) * 0.22;
-        } else if (income <= 170050) {
-          incomeTax = 10275 * 0.10 + (41775 - 10275) * 0.12 + (89075 - 41775) * 0.22 + (income - 89075) * 0.24;
-        } else if (income <= 215950) {
-          incomeTax = 10275 * 0.10 + (41775 - 10275) * 0.12 + (89075 - 41775) * 0.22 + 
-                    (170050 - 89075) * 0.24 + (income - 170050) * 0.32;
-        } else {
-          incomeTax = 10275 * 0.10 + (41775 - 10275) * 0.12 + (89075 - 41775) * 0.22 + 
-                    (170050 - 89075) * 0.24 + (215950 - 170050) * 0.32 + (income - 215950) * 0.35;
-        }
+      case 'US': // United States (2023 tax brackets)
+        taxBrackets = [
+          { min: 0, max: 10275, rate: 0.10 },
+          { min: 10275, max: 41775, rate: 0.12 },
+          { min: 41775, max: 89075, rate: 0.22 },
+          { min: 89075, max: 170050, rate: 0.24 },
+          { min: 170050, max: 215950, rate: 0.32 },
+          { min: 215950, max: Infinity, rate: 0.35 }
+        ];
+        
+        // Calculate progressive tax
+        incomeTax = calculateProgressiveTax(income, taxBrackets);
         
         // Self-employment tax (15.3% of 92.35% of net earnings)
-        selfEmploymentTax = income * 0.9235 * 0.153;
+        additionalTax = income * 0.9235 * 0.153;
+        taxDescription = 'Federal Income Tax + Self-Employment Tax (Social Security & Medicare)';
         break;
         
-      case 'UK':
-        // UK tax brackets with personal allowance (2023/24 rates)
-        const personalAllowance = income > 100000 ? Math.max(0, 12570 - (income - 100000) / 2) : 12570;
+      case 'UK': // United Kingdom (2023/24 tax year)
+        // Personal allowance reduction for high earners
+        const personalAllowance = income > 100000 ? 
+          Math.max(0, 12570 - (income - 100000) / 2) : 
+          12570;
+        
         const taxableIncome = Math.max(0, income - personalAllowance);
         
-        if (taxableIncome <= 37700) {
-          incomeTax = taxableIncome * 0.20;
-        } else if (taxableIncome <= 150000) {
-          incomeTax = 37700 * 0.20 + (taxableIncome - 37700) * 0.40;
-        } else {
-          incomeTax = 37700 * 0.20 + (150000 - 37700) * 0.40 + (taxableIncome - 150000) * 0.45;
-        }
+        taxBrackets = [
+          { min: 0, max: 37700, rate: 0.20 },
+          { min: 37700, max: 150000, rate: 0.40 },
+          { min: 150000, max: Infinity, rate: 0.45 }
+        ];
         
-        // National Insurance contributions (simplified)
+        incomeTax = calculateProgressiveTax(taxableIncome, taxBrackets);
+        
+        // National Insurance contributions (Class 4)
         if (income > 9568) {
-          selfEmploymentTax = (Math.min(income, 50270) - 9568) * 0.092 + 
-                            (income > 50270 ? (income - 50270) * 0.032 : 0);
+          additionalTax = (Math.min(income, 50270) - 9568) * 0.092 + 
+                         (income > 50270 ? (income - 50270) * 0.032 : 0);
         }
+        taxDescription = 'Income Tax + National Insurance Contributions';
         break;
         
-      case 'CA':
-        // Canadian federal tax brackets (2023 rates)
-        if (income <= 50197) {
-          incomeTax = income * 0.15;
-        } else if (income <= 100392) {
-          incomeTax = 50197 * 0.15 + (income - 50197) * 0.205;
-        } else if (income <= 155625) {
-          incomeTax = 50197 * 0.15 + (100392 - 50197) * 0.205 + (income - 100392) * 0.26;
-        } else if (income <= 221708) {
-          incomeTax = 50197 * 0.15 + (100392 - 50197) * 0.205 + (155625 - 100392) * 0.26 +
-                    (income - 155625) * 0.29;
-        } else {
-          incomeTax = 50197 * 0.15 + (100392 - 50197) * 0.205 + (155625 - 100392) * 0.26 +
-                    (221708 - 155625) * 0.29 + (income - 221708) * 0.33;
-        }
+      case 'CA': // Canada (2023 federal tax brackets)
+        taxBrackets = [
+          { min: 0, max: 50197, rate: 0.15 },
+          { min: 50197, max: 100392, rate: 0.205 },
+          { min: 100392, max: 155625, rate: 0.26 },
+          { min: 155625, max: 221708, rate: 0.29 },
+          { min: 221708, max: Infinity, rate: 0.33 }
+        ];
         
-        // CPP + EI (simplified)
-        selfEmploymentTax = Math.min(income, 61400) * 0.111;
+        incomeTax = calculateProgressiveTax(income, taxBrackets);
+        
+        // CPP + EI (simplified calculation)
+        additionalTax = Math.min(income, 61400) * 0.111;
+        taxDescription = 'Federal Income Tax + CPP/QPP + EI';
         break;
         
-      case 'IN':
-        // Indian tax brackets (2023-24 rates)
-        if (income <= 250000) {
-          incomeTax = 0;
-        } else if (income <= 500000) {
-          incomeTax = (income - 250000) * 0.05;
-        } else if (income <= 1000000) {
-          incomeTax = (500000 - 250000) * 0.05 + (income - 500000) * 0.20;
-        } else {
-          incomeTax = (500000 - 250000) * 0.05 + (1000000 - 500000) * 0.20 + (income - 1000000) * 0.30;
-        }
+      case 'IN': // India (2023-24 FY)
+        taxBrackets = [
+          { min: 0, max: 250000, rate: 0 },
+          { min: 250000, max: 500000, rate: 0.05 },
+          { min: 500000, max: 1000000, rate: 0.20 },
+          { min: 1000000, max: Infinity, rate: 0.30 }
+        ];
         
-        // Health and education cess
-        incomeTax *= 1.04;
+        incomeTax = calculateProgressiveTax(income, taxBrackets);
+        
+        // Health and education cess (4% of income tax)
+        additionalTax = incomeTax * 0.04;
+        taxDescription = 'Income Tax + Health & Education Cess';
         break;
         
-      case 'AU':
-        // Australian tax brackets (2022-23 rates)
-        if (income <= 18200) {
-          incomeTax = 0;
-        } else if (income <= 45000) {
-          incomeTax = (income - 18200) * 0.19;
-        } else if (income <= 120000) {
-          incomeTax = 5092 + (income - 45000) * 0.325;
-        } else if (income <= 180000) {
-          incomeTax = 29467 + (income - 120000) * 0.37;
-        } else {
-          incomeTax = 51667 + (income - 180000) * 0.45;
-        }
+      case 'AU': // Australia (2022-23 FY)
+        taxBrackets = [
+          { min: 0, max: 18200, rate: 0 },
+          { min: 18200, max: 45000, rate: 0.19 },
+          { min: 45000, max: 120000, rate: 0.325 },
+          { min: 120000, max: 180000, rate: 0.37 },
+          { min: 180000, max: Infinity, rate: 0.45 }
+        ];
+        
+        incomeTax = calculateProgressiveTax(income, taxBrackets);
         
         // Medicare Levy (2%)
-        selfEmploymentTax = income * 0.02;
+        additionalTax = income * 0.02;
+        taxDescription = 'Income Tax + Medicare Levy';
         break;
         
-      case 'DE':
-        // German tax brackets (simplified)
-        if (income <= 9744) {
-          incomeTax = 0;
-        } else if (income <= 14753) {
-          incomeTax = (income - 9744) * 0.14;
-        } else if (income <= 57918) {
-          incomeTax = (14753 - 9744) * 0.14 + (income - 14753) * 0.42;
-        } else {
-          incomeTax = (14753 - 9744) * 0.14 + (57918 - 14753) * 0.42 + (income - 57918) * 0.45;
-        }
+      case 'DE': // Germany (2023)
+        taxBrackets = [
+          { min: 0, max: 9744, rate: 0 },
+          { min: 9744, max: 14753, rate: 0.14 },
+          { min: 14753, max: 57918, rate: 0.42 },
+          { min: 57918, max: Infinity, rate: 0.45 }
+        ];
+        
+        incomeTax = calculateProgressiveTax(income, taxBrackets);
         
         // Solidarity surcharge (5.5% of income tax)
-        incomeTax *= 1.055;
+        additionalTax = incomeTax * 0.055;
+        taxDescription = 'Income Tax + Solidarity Surcharge';
         break;
         
       default:
-        // Default flat tax for other countries
+        // Default flat tax rate for other countries
         incomeTax = income * 0.25;
+        taxDescription = 'Estimated Flat Tax Rate';
     }
     
-    const totalTax = incomeTax + selfEmploymentTax;
-    taxRate = income > 0 ? (totalTax / income) * 100 : 0;
+    const totalTax = incomeTax + additionalTax;
+    const taxRate = income > 0 ? (totalTax / income) * 100 : 0;
     
     return {
       estimatedTax: Math.round(totalTax * 100) / 100,
       incomeTax: Math.round(incomeTax * 100) / 100,
-      selfEmploymentTax: Math.round(selfEmploymentTax * 100) / 100,
+      additionalTax: Math.round(additionalTax * 100) / 100,
       taxRate: Math.round(taxRate * 10) / 10,
       taxYear: new Date().getFullYear(),
-      country
+      country,
+      taxBrackets,
+      taxDescription
     };
+  };
+
+  // Helper function to calculate progressive tax
+  const calculateProgressiveTax = (income, brackets) => {
+    let tax = 0;
+    let previousBracketMax = 0;
+    
+    for (const bracket of brackets) {
+      if (income > bracket.min) {
+        const taxableAmount = Math.min(income, bracket.max) - Math.max(bracket.min, previousBracketMax);
+        tax += taxableAmount * bracket.rate;
+        previousBracketMax = bracket.max;
+      } else {
+        break;
+      }
+    }
+    
+    return tax;
   };
 
   const handleCountryChange = (e) => {
@@ -288,7 +358,11 @@ const TaxEstimationComponent = ({ freelancerId }) => {
   };
 
   const handleEarningsChange = (e) => {
-    setCustomEarnings(e.target.value);
+    const value = e.target.value;
+    // Only update if value is empty or a valid number
+    if (value === '' || !isNaN(value)) {
+      setCustomEarnings(value);
+    }
   };
 
   const handleJoinDateChange = (e) => {
@@ -308,7 +382,7 @@ const TaxEstimationComponent = ({ freelancerId }) => {
   };
 
   const formatCurrency = (amount, currency = taxData?.currency, symbol = taxData?.currencySymbol) => {
-    if (!amount) return '-';
+    if (amount === null || amount === undefined) return '-';
     
     try {
       return new Intl.NumberFormat('en-US', {
@@ -322,50 +396,49 @@ const TaxEstimationComponent = ({ freelancerId }) => {
     }
   };
 
-  if (loading) {
+  if (loading || !taxData) {
     return (
       <div className="tax-estimation-card loading">
-        <div className="loading-spinner"></div>
-        <p className="loading-text">Calculating tax estimation...</p>
+        <Loader className="loading-spinner" size={32} />
+        <p className="loading-text">Preparing your tax estimation...</p>
       </div>
     );
   }
 
-  if (!taxData) {
-    return (
-      <div className="tax-estimation-card error">
-        <AlertCircle className="error-icon" size={24} />
-        <p>Unable to generate tax estimation</p>
-      </div>
-    );
-  }
-
+  const currentCountry = countryOptions.find(c => c.value === selectedCountry);
   const monthlyPayment = taxData.currentTaxLiability / Math.min(taxData.monthsActive, 12);
   const quarterlyPayment = taxData.currentTaxLiability / 4;
-  const currentCountry = countryOptions.find(c => c.value === selectedCountry);
 
   return (
     <div className="tax-estimation-card">
       <div className="tax-header">
         <div className="tax-title">
-          <Calculator size={20} className="header-icon" />
-          <h3>Tax Estimation</h3>
+          <Calculator size={24} className="header-icon" />
+          <div>
+            <h3>Tax Estimation</h3>
+            <p className="tax-subtitle">{currentCountry.label} • {taxData.taxSystem}</p>
+          </div>
         </div>
         <button 
-          className="info-button"
+          className={`info-button ${infoVisible ? 'active' : ''}`}
           onClick={() => setInfoVisible(!infoVisible)}
           aria-label="Tax information"
         >
-          <Info size={18} />
+          <Info size={20} />
         </button>
       </div>
       
       {infoVisible && (
         <div className="tax-info-box">
-          <p>Tax rates are based on current {taxData.country} tax brackets for self-employed professionals.</p>
-          <p>For accurate tax advice, please consult a tax professional.</p>
+          <p>
+            <strong>Tax Year:</strong> {taxData.taxYear} • <strong>Mode:</strong> {projectionMode ? 'Projected Annual' : 'Actual Earnings'}
+          </p>
+          <p>{taxData.taxDescription}</p>
+          <p>Based on {taxData.monthsActive} month{taxData.monthsActive !== 1 ? 's' : ''} of activity since {new Date(joinDate).toLocaleDateString()}</p>
           {exchangeRateError && (
-            <p className="exchange-rate-error">{exchangeRateError}</p>
+            <p className="exchange-rate-error">
+              <AlertCircle size={14} /> {exchangeRateError}
+            </p>
           )}
         </div>
       )}
@@ -373,7 +446,7 @@ const TaxEstimationComponent = ({ freelancerId }) => {
       <div className="tax-controls">
         <div className="control-group">
           <label htmlFor="country-select" className="control-label">
-            <Globe size={16} className="label-icon" />
+            <Globe size={18} className="label-icon" />
             Country
           </label>
           <select 
@@ -392,16 +465,18 @@ const TaxEstimationComponent = ({ freelancerId }) => {
         
         <div className="control-group">
           <label htmlFor="earnings-input" className="control-label">
-            <DollarSign size={16} className="label-icon" />
+            <DollarSign size={18} className="label-icon" />
             Current Earnings (USD)
           </label>
           <input
             id="earnings-input"
             type="number"
-            value={customEarnings || taxData.originalEarningsUSD}
+            value={customEarnings !== '' ? customEarnings : freelancerEarnings}
             onChange={handleEarningsChange}
-            placeholder="Enter current earnings in USD"
+            placeholder={`Current earnings: ${freelancerEarnings.toFixed(2)} USD`}
             className="earnings-input"
+            min="0"
+            step="100"
           />
           <div className="converted-amount">
             ≈ {formatCurrency(taxData.currentEarnings)} {selectedCountry !== 'US' && (
@@ -416,7 +491,7 @@ const TaxEstimationComponent = ({ freelancerId }) => {
       <div className="tax-controls">
         <div className="control-group">
           <label htmlFor="join-date" className="control-label">
-            <Calendar size={16} className="label-icon" />
+            <Calendar size={18} className="label-icon" />
             Join Date
           </label>
           <input
@@ -425,12 +500,13 @@ const TaxEstimationComponent = ({ freelancerId }) => {
             value={joinDate}
             onChange={handleJoinDateChange}
             className="date-input"
+            max={new Date().toISOString().split('T')[0]}
           />
         </div>
         
         <div className="control-group">
           <label className="control-label">
-            <TrendingUp size={16} className="label-icon" />
+            <TrendingUp size={18} className="label-icon" />
             Calculation Mode
           </label>
           <div className="mode-toggle">
@@ -470,53 +546,60 @@ const TaxEstimationComponent = ({ freelancerId }) => {
             <div className="summary-value highlight">
               {formatCurrency(taxData.currentTaxLiability)}
             </div>
-          </div>
-        </div>
-        
-        <div className="summary-row">
-          <div className="summary-item">
-            <span className="summary-label">
-              {projectionMode ? 'Projected Annual' : 'Total'} Tax
-            </span>
-            <div className="summary-value secondary">
-              {formatCurrency(taxData.estimatedTax)}
+            <div className="summary-note">
+              Effective Rate: {taxData.taxRate.toFixed(1)}%
             </div>
-          </div>
-          <div className="summary-item">
-            <span className="summary-label">Effective Tax Rate</span>
-            <div className="summary-value secondary">{taxData.taxRate.toFixed(1)}%</div>
           </div>
         </div>
       </div>
       
       <div className="tax-breakdown">
         <div className="breakdown-header">
-          <PieChart size={16} className="breakdown-icon" />
+          <PieChart size={20} className="breakdown-icon" />
           <h4>Tax Breakdown</h4>
         </div>
         
         <div className="breakdown-items">
           <div className="breakdown-item">
             <span>Income Tax:</span>
-            <span>{formatCurrency(projectionMode ? taxData.incomeTax * (taxData.monthsActive / 12) : taxData.incomeTax)}</span>
+            <span>{formatCurrency(
+              projectionMode ? 
+                taxData.incomeTax * (taxData.monthsActive / 12) : 
+                taxData.incomeTax
+            )}</span>
           </div>
           
-          {taxData.selfEmploymentTax > 0 && (
+          {taxData.additionalTax > 0 && (
             <div className="breakdown-item">
-              <span>Self-Employment Tax:</span>
-              <span>{formatCurrency(projectionMode ? taxData.selfEmploymentTax * (taxData.monthsActive / 12) : taxData.selfEmploymentTax)}</span>
+              <span>{selectedCountry === 'US' ? 'Self-Employment Tax' : 
+                    selectedCountry === 'UK' ? 'National Insurance' : 
+                    selectedCountry === 'CA' ? 'CPP + EI' : 
+                    selectedCountry === 'IN' ? 'Health & Education Cess' : 
+                    selectedCountry === 'AU' ? 'Medicare Levy' : 
+                    selectedCountry === 'DE' ? 'Solidarity Surcharge' : 
+                    'Additional Tax'}:</span>
+              <span>{formatCurrency(
+                projectionMode ? 
+                  taxData.additionalTax * (taxData.monthsActive / 12) : 
+                  taxData.additionalTax
+              )}</span>
             </div>
           )}
           
           <div className="breakdown-item total">
-            <span>Total:</span>
+            <span>Total Tax Liability:</span>
             <span>{formatCurrency(taxData.currentTaxLiability)}</span>
           </div>
         </div>
       </div>
       
       <div className="payment-planning">
-        <h4 className="planning-header">Payment Planning</h4>
+        <h4 className="planning-header">
+          <span>Payment Planning</span>
+          {taxData.monthsActive < 3 && (
+            <span className="new-freelancer-badge">New Freelancer</span>
+          )}
+        </h4>
         <div className="payment-options">
           <div className="payment-option">
             <div className="option-header">
@@ -536,11 +619,29 @@ const TaxEstimationComponent = ({ freelancerId }) => {
         </div>
       </div>
       
+      {taxData.taxBrackets && taxData.taxBrackets.length > 0 && (
+        <div className="tax-brackets">
+          <h4 className="brackets-header">Tax Brackets Applied</h4>
+          <div className="brackets-grid">
+            {taxData.taxBrackets.map((bracket, index) => (
+              <div key={index} className="bracket-item">
+                <div className="bracket-range">
+                  {bracket.min === 0 ? 'Up to' : formatCurrency(bracket.min)} -{' '}
+                  {bracket.max === Infinity ? 'Above' : formatCurrency(bracket.max)}
+                </div>
+                <div className="bracket-rate">{(bracket.rate * 100).toFixed(1)}%</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      
       <div className="tax-disclaimer">
-        <AlertCircle size={14} className="disclaimer-icon" />
+        <AlertCircle size={16} className="disclaimer-icon" />
         <span>
-          This is an estimate for {taxData.country} tax system based on {taxData.monthsActive} month{taxData.monthsActive !== 1 ? 's' : ''} of activity. 
-          {exchangeRateError && ' ' + exchangeRateError} Consult a tax professional for advice.
+          This is an estimate for {taxData.country} tax system. Tax laws change frequently and 
+          this calculator doesn't account for all possible deductions or credits. 
+          {exchangeRateError && ' ' + exchangeRateError} Always consult a qualified tax professional.
         </span>
       </div>
       
@@ -549,7 +650,7 @@ const TaxEstimationComponent = ({ freelancerId }) => {
           className="recalculate-button"
           onClick={handleRecalculate}
         >
-          <RefreshCw size={14} className="button-icon" />
+          <RefreshCw size={16} className="button-icon" />
           Recalculate Taxes
         </button>
         
@@ -559,7 +660,11 @@ const TaxEstimationComponent = ({ freelancerId }) => {
             onClick={handleRefreshRates}
             disabled={exchangeRateLoading}
           >
-            <RefreshCw size={14} className="button-icon" />
+            {exchangeRateLoading ? (
+              <Loader size={16} className="button-icon spin" />
+            ) : (
+              <RefreshCw size={16} className="button-icon" />
+            )}
             {exchangeRateLoading ? 'Updating Rates...' : 'Refresh Exchange Rates'}
           </button>
         )}

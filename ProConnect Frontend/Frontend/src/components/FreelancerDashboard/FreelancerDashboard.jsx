@@ -258,7 +258,7 @@ const FreelancerDashboard = () => {
           { icon: DollarSign, label: 'Earnings', section: 'earnings' },
           { icon: PieChart, label: 'Financial Planning', section: 'financial-planning' },
           { icon: TrendingUp, label: 'Market Analysis', section: 'analysis' }, // New menu item
-          { icon: MessageCircle, label: 'Messages', section: 'messages' },
+          
           { icon: Settings, label: 'Settings', section: 'settings' }
         ].map(({ icon: Icon, label, section }) => (
           <button
@@ -302,9 +302,7 @@ const FreelancerDashboard = () => {
                   {renderRecentProjects()}
                 </div>
 
-                <div className="content-section">
-                  {renderTaxEstimation()}
-                </div>
+                
               </>
             )}
 
@@ -338,11 +336,7 @@ const FreelancerDashboard = () => {
               </div>
             )}
 
-            {activeSection === 'messages' && (
-              <div className="content-section">
-                <MessagesSection />
-              </div>
-            )}
+            
 
             {activeSection === 'settings' && (
               <div className="content-section">

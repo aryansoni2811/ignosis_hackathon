@@ -16,26 +16,9 @@ const FinancialPlanningSection = ({ freelancerId }) => {
           <TaxEstimationComponent freelancerId={freelancerId} />
         </div>
         
-        <div className="financial-card savings-card">
-          <h3>Savings Goals</h3>
-          <div className="savings-content">
-            <p>Coming soon: Track your savings goals and set aside money for taxes</p>
-          </div>
-        </div>
         
-        <div className="financial-card tips-card">
-          <h3>Financial Tips</h3>
-          <div className="tips-content">
-            <div className="tip-item">
-              <h4>Quarterly Tax Payments</h4>
-              <p>Consider making estimated tax payments quarterly to avoid penalties.</p>
-            </div>
-            <div className="tip-item">
-              <h4>Emergency Fund</h4>
-              <p>Aim to save 3-6 months of living expenses for emergencies.</p>
-            </div>
-          </div>
-        </div>
+        
+        
       </div>
     </div>
   );
