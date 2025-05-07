@@ -11,7 +11,8 @@ import {
   Clock,
   Zap,
   TrendingUp,
-  PieChart
+  PieChart,
+  Star
 } from 'lucide-react';
 import './FreelancerDashboard.css';
 import TaxEstimationComponent from './TaxEstimationComponent';
@@ -36,7 +37,8 @@ const FreelancerDashboard = () => {
     activeProjects: 0,
     skills: [],
     profession: '',
-    id: null
+    id: null,
+    averageRating: 0
   });
   const [loading, setLoading] = useState(true);
   const [recentProjects, setRecentProjects] = useState([]);
@@ -56,6 +58,10 @@ const FreelancerDashboard = () => {
 
         const projectsResponse = await axiosInstance.get(`/api/projects/freelancer/${freelancer.id}`);
         const projects = projectsResponse.data || [];
+
+        const ratingResponse = await axiosInstance.get(`/api/ratings/freelancer/${freelancer.id}/average`);
+        const averageRating = ratingResponse.data || 0;
+
 
         const completedProjects = projects.filter(p => {
           const deadline = new Date(p.deadline);
@@ -86,7 +92,8 @@ const FreelancerDashboard = () => {
           activeProjects,
           skills: freelancer.skills || [],
           profession: freelancer.profession || 'Freelancer',
-          id: freelancer.id
+          id: freelancer.id,
+          averageRating: averageRating
         });
 
         setRecentProjects(recentCompleted);
@@ -155,7 +162,30 @@ const FreelancerDashboard = () => {
           <p>{calculateProfileCompleteness()}%</p>
         </div>
       </div>
+
+      <div className="dashboard-metric-card">
+      <div className="metric-icon-container">
+        <Star className="metric-icon" />
+      </div>
+      <div className="metric-content">
+        <h3>Average Rating</h3>
+        <p>
+          {freelancerData.averageRating.toFixed(1)}/5
+          <span className="rating-stars-small">
+            {[...Array(5)].map((_, i) => (
+              <Star 
+                key={i} 
+                size={14} 
+                className={`rating-star-small ${
+                  i < Math.floor(freelancerData.averageRating) ? 'filled' : ''
+                }`}
+              />
+            ))}
+          </span>
+        </p>
+      </div>
     </div>
+  </div>
   );
 
   const renderRecentProjects = () => (

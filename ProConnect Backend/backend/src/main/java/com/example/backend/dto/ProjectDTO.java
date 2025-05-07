@@ -1,45 +1,26 @@
 package com.example.backend.dto;
 
 import java.time.LocalDate;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import lombok.Data;
+import java.util.Map;
 
-@Data
 public class ProjectDTO {
     private Long id;
-
-    @NotBlank(message = "Project title is required")
     private String title;
-
-    @NotBlank(message = "Project description is required")
     private String description;
-
-    @NotNull(message = "Budget is required")
-    @Positive(message = "Budget must be positive")
     private Double budget;
-
-    @NotNull(message = "Deadline is required")
     private LocalDate deadline;
-
-    @NotBlank(message = "Required skills are required")
     private String requiredSkills;
-
-    @NotBlank(message = "Project category is required")
     private String category;
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
     private String status;
-    private String clientEmail; // To associate project with client
+    private String clientEmail;
+    private Long freelancerId;
+    private String freelancerName;
+    private String freelancerEmail;
+    private Boolean isPaid;
+    private Boolean hasRated;
+    private Map<String, Object> freelancerRating;
 
+    // Getters and setters
     public Long getId() {
         return id;
     }
@@ -88,6 +69,14 @@ public class ProjectDTO {
         this.requiredSkills = requiredSkills;
     }
 
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
     public String getStatus() {
         return status;
     }
@@ -102,5 +91,53 @@ public class ProjectDTO {
 
     public void setClientEmail(String clientEmail) {
         this.clientEmail = clientEmail;
+    }
+
+    public Long getFreelancerId() {
+        return freelancerId;
+    }
+
+    public void setFreelancerId(Long freelancerId) {
+        this.freelancerId = freelancerId;
+    }
+
+    public String getFreelancerName() {
+        return freelancerName;
+    }
+
+    public void setFreelancerName(String freelancerName) {
+        this.freelancerName = freelancerName;
+    }
+
+    public String getFreelancerEmail() {
+        return freelancerEmail;
+    }
+
+    public void setFreelancerEmail(String freelancerEmail) {
+        this.freelancerEmail = freelancerEmail;
+    }
+
+    public Boolean getIsPaid() {
+        return isPaid;
+    }
+
+    public void setIsPaid(Boolean isPaid) {
+        this.isPaid = isPaid;
+    }
+
+    public Boolean getHasRated() {
+        return hasRated;
+    }
+
+    public void setHasRated(Boolean hasRated) {
+        this.hasRated = hasRated;
+    }
+
+    public Map<String, Object> getFreelancerRating() {
+        return freelancerRating;
+    }
+
+    public void setFreelancerRating(Map<String, Object> freelancerRating) {
+        this.freelancerRating = freelancerRating;
     }
 }
