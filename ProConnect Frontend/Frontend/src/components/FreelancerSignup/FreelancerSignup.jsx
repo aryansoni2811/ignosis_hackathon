@@ -47,6 +47,9 @@ const FreelancerSignup = () => {
 
       if (response.data.success) {
         // Use the login function from AuthContext instead of directly setting localStorage
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('userType', 'freelancer');
+        localStorage.setItem('freelancerEmail', formData.email);
         login({
           token: response.data.token,
           userType: 'freelancer',

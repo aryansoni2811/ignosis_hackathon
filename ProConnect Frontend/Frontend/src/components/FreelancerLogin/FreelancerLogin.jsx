@@ -42,6 +42,9 @@ const FreelancerLogin = () => {
       });
 
       if (response.data.success) {
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('userType', 'freelancer');
+        localStorage.setItem('freelancerEmail', formData.email);
         const userData = {
           token: response.data.token,
           userType: 'freelancer',

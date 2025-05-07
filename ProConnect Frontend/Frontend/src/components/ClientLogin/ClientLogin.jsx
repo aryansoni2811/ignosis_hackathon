@@ -45,6 +45,8 @@ const ClientLogin = () => {
       });
 
       if (response.data.success) {
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('clientEmail', formData.email); 
         const userData = {
           token: response.data.token,
           userType: 'client',
