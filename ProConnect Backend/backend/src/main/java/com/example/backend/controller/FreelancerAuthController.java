@@ -2,9 +2,11 @@ package com.example.backend.controller;
 
 import com.example.backend.entity.Freelancer;
 import com.example.backend.entity.Project;
+import com.example.backend.entity.Proposal;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.repository.FreelancerRepository;
 import com.example.backend.repository.ProjectRepository;
+import com.example.backend.repository.ProposalRepository;
 import com.example.backend.repository.SkillRepository;
 import com.example.backend.service.FreeLancerAuthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +40,9 @@ public class FreelancerAuthController {
     private FreelancerRepository freelancerRepository;
 
     @Autowired
+    private ProposalRepository proposalRepository;
+
+    @Autowired
     private SkillRepository skillRepository;
 
     @Autowired
@@ -69,6 +74,65 @@ public class FreelancerAuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error fetching freelancer: " + e.getMessage());
         }
+    }
+
+    // Add this to your FreelancerAuthController.java
+    @GetMapping("/earnings-details")
+    public ResponseEntity<Map<String, Object>> getFreelancerEarningsDetails(@RequestParam Long id) {
+        Freelancer freelancer = freelancerRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Freelancer not found"));
+
+        // Get accepted proposals (completed projects)
+        List<Proposal> acceptedProposals = proposalRepository.findByFreelancerIdAndStatus(id, "Accepted");
+
+        // Calculate monthly earnings
+        Map<String, Double> monthlyEarnings = acceptedProposals.stream()
+                .filter(p -> p.getReviewedAt() != null)
+                .collect(Collectors.groupingBy(
+                        p -> p.getReviewedAt().getMonthValue() + "-" + p.getReviewedAt().getYear(),
+                        Collectors.summingDouble(Proposal::getBidAmount)
+                ));
+
+        // Calculate trend (simplified)
+        double trend = 0;
+        if (monthlyEarnings.size() > 1) {
+            List<Double> values = new ArrayList<>(monthlyEarnings.values());
+            double lastMonth = values.get(values.size() - 1);
+            double prevMonth = values.get(values.size() - 2);
+            trend = ((lastMonth - prevMonth) / prevMonth) * 100;
+        }
+
+        // Prepare recent transactions (accepted proposals)
+        List<Map<String, Object>> recentTransactions = acceptedProposals.stream()
+                .sorted(Comparator.comparing(Proposal::getReviewedAt).reversed())
+                .limit(5)
+                .map(p -> {
+                    Map<String, Object> transaction = new HashMap<>();
+                    transaction.put("project", p.getProject().getTitle());
+                    transaction.put("client", p.getProject().getClient().getName());
+                    transaction.put("amount", p.getBidAmount());
+                    transaction.put("date", p.getReviewedAt());
+                    return transaction;
+                })
+                .collect(Collectors.toList());
+
+        // Prepare response
+        Map<String, Object> response = new HashMap<>();
+        response.put("totalEarnings", freelancer.getEarnings());
+        response.put("monthlyEarnings", monthlyEarnings.entrySet().stream()
+                .map(e -> {
+                    String[] parts = e.getKey().split("-");
+                    Map<String, Object> monthData = new HashMap<>();
+                    monthData.put("month", parts[0]);
+                    monthData.put("year", parts[1]);
+                    monthData.put("amount", e.getValue());
+                    return monthData;
+                })
+                .collect(Collectors.toList()));
+        response.put("trend", trend);
+        response.put("recentTransactions", recentTransactions);
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/upload-profile-image")

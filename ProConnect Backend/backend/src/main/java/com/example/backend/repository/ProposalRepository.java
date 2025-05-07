@@ -11,6 +11,8 @@ import java.util.Optional;
 
 public interface ProposalRepository extends JpaRepository<Proposal, Long> {
     List<Proposal> findByProjectId(Long projectId);
+
+    List<Proposal> findByFreelancerIdAndStatus(Long freelancerId, String status);
     List<Proposal> findByFreelancerId(Long freelancerId);
     boolean existsByFreelancerIdAndProjectId(Long freelancerId, Long projectId);
     boolean existsByProjectIdAndStatus(Long projectId, String status);
