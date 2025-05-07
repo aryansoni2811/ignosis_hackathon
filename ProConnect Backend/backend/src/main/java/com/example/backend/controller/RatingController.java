@@ -1,6 +1,7 @@
 package com.example.backend.controller;
 
 import com.example.backend.entity.Rating;
+import com.example.backend.repository.RatingRepository;
 import com.example.backend.service.RatingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,9 @@ import java.util.Map;
 public class RatingController {
     @Autowired
     private RatingService ratingService;
+
+    @Autowired
+    private RatingRepository ratingRepository;
 
     @PostMapping
     public ResponseEntity<Rating> createRating(@RequestBody Rating rating) {
@@ -34,6 +38,11 @@ public class RatingController {
     @GetMapping("/freelancer/{freelancerId}/stats")
     public ResponseEntity<Map<String, Object>> getFreelancerRatingStats(@PathVariable Long freelancerId) {
         return ResponseEntity.ok(ratingService.getFreelancerRatingStats(freelancerId));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Rating>> getAllRatings() {
+        return ResponseEntity.ok(ratingRepository.findAll());
     }
 
     @GetMapping("/check-rating")

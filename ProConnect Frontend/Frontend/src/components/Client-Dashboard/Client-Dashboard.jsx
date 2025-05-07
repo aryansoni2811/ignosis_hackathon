@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Home,
-  Plus,
-  User,
-  MessageCircle,
-  Briefcase
-} from 'lucide-react';
+import { Home, Plus, User, MessageCircle, Briefcase, Search } from 'lucide-react';
+import DashboardFreelancers from './DashboardFreelancers';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import DashboardHome from './DashboardHome';
@@ -85,10 +80,11 @@ const ClientDashboard = () => {
 
   const navigationItems = [
     { icon: Home, label: 'Dashboard', section: 'dashboard' },
-    { icon: Briefcase, label: 'Proposals', section: 'proposals' },
-    { icon: Plus, label: 'Post Project', section: 'post-project' },
-    { icon: MessageCircle, label: 'Messages', section: 'messages' },
-    { icon: User, label: 'Profile', section: 'profile' }
+  { icon: Briefcase, label: 'Proposals', section: 'proposals' },
+  { icon: Plus, label: 'Post Project', section: 'post-project' },
+  { icon: Search, label: 'Find Freelancers', section: 'freelancers' },
+  { icon: MessageCircle, label: 'Messages', section: 'messages' },
+  { icon: User, label: 'Profile', section: 'profile' }
   ];
 
   const renderSection = () => {
@@ -105,6 +101,8 @@ const ClientDashboard = () => {
         return <PostProject
             setProjectStats={setProjectStats}
         />;
+      case 'freelancers':
+        return <DashboardFreelancers />;
       case 'messages':
         return <DashboardMessages />;
       case 'profile':

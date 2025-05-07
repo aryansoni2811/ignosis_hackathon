@@ -5,6 +5,7 @@ import com.example.backend.entity.Project;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.repository.FreelancerRepository;
 import com.example.backend.repository.ProjectRepository;
+import com.example.backend.repository.SkillRepository;
 import com.example.backend.service.FreeLancerAuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -35,6 +36,9 @@ public class FreelancerAuthController {
 
     @Autowired
     private FreelancerRepository freelancerRepository;
+
+    @Autowired
+    private SkillRepository skillRepository;
 
     @Autowired
     private ProjectRepository projectRepository;
@@ -221,6 +225,26 @@ public class FreelancerAuthController {
                 .collect(Collectors.toList()));
 
         return ResponseEntity.ok(response);
+    }
+
+
+
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllFreelancers() {
+        try {
+            List<Freelancer> freelancers = freelancerRepository.findAll();
+
+            // Eagerly load skills for each freelancer
+            for (Freelancer freelancer : freelancers) {
+                freelancer.setSkills(skillRepository.findByFreelancerId(freelancer.getId()));
+            }
+
+            return ResponseEntity.ok(freelancers);
+        } catch (Exception e) {
+            logger.severe("Error fetching all freelancers: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error fetching freelancers: " + e.getMessage());
+        }
     }
 
     @GetMapping("/search")

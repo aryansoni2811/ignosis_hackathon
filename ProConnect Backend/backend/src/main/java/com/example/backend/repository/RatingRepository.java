@@ -19,6 +19,7 @@ public interface RatingRepository extends JpaRepository<Rating, Long> {
 
     Optional<Rating> findByFreelancerIdAndClientIdAndProjectId(Long freelancerId, Long clientId, Long projectId);
 
+    List<Rating> findAll();
     // Count total ratings for a freelancer
     @Query("SELECT COUNT(r) FROM Rating r WHERE r.freelancerId = :freelancerId")
     Long countByFreelancerId(@Param("freelancerId") Long freelancerId);
