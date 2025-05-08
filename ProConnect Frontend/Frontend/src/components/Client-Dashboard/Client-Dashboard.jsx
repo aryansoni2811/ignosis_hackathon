@@ -11,7 +11,6 @@ import DashboardProfile from './DashboardProfile';
 import axiosInstance from '../config/axiosConfig';
 import './Client-Dashboard.css';
 
-
 const ClientDashboard = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
@@ -24,6 +23,26 @@ const ClientDashboard = () => {
     completedProjects: 0,
     pendingInvoices: 0
   });
+
+  const handleProfileUpdate = async (updateData) => {
+    try {
+      const response = await axiosInstance.put(
+        `/api/auth/update-profile?email=${user.email}`,
+        updateData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${user.token}`
+          }
+        }
+      );
+      setClientData(response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      throw error;
+    }
+  };
 
   // Check authentication
   useEffect(() => {
@@ -80,42 +99,40 @@ const ClientDashboard = () => {
 
   const navigationItems = [
     { icon: Home, label: 'Dashboard', section: 'dashboard' },
-  { icon: Briefcase, label: 'Proposals', section: 'proposals' },
-  { icon: Plus, label: 'Post Project', section: 'post-project' },
-  { icon: Search, label: 'Find Freelancers', section: 'freelancers' },
-  { icon: MessageCircle, label: 'Messages', section: 'messages' },
-  { icon: User, label: 'Profile', section: 'profile' }
+    { icon: Briefcase, label: 'Proposals', section: 'proposals' },
+    { icon: Plus, label: 'Post Project', section: 'post-project' },
+    { icon: Search, label: 'Find Freelancers', section: 'freelancers' },
+    { icon: User, label: 'Profile', section: 'profile' }
   ];
 
   const renderSection = () => {
-    switch(activeSection) {
+    switch (activeSection) {
       case 'dashboard':
         return <DashboardHome
-            clientData={clientData}
-            projectStats={projectStats}
-            setProjectStats={setProjectStats}
+          clientData={clientData}
+          projectStats={projectStats}
+          setProjectStats={setProjectStats}
         />;
       case 'proposals':
         return <DashboardProposals />;
       case 'post-project':
         return <PostProject
-            setProjectStats={setProjectStats}
+          setProjectStats={setProjectStats}
         />;
       case 'freelancers':
         return <DashboardFreelancers />;
-      case 'messages':
-        return <DashboardMessages />;
       case 'profile':
         return <DashboardProfile
-            clientData={clientData}
-            loading={loading}
-            projectStats={projectStats}
-        />;
+          clientData={clientData}
+          loading={loading}
+          projectStats={projectStats}
+          onProfileUpdate={handleProfileUpdate}
+        />
       default:
         return <DashboardHome
-            clientData={clientData}
-            projectStats={projectStats}
-            setProjectStats={setProjectStats}
+          clientData={clientData}
+          projectStats={projectStats}
+          setProjectStats={setProjectStats}
         />;
     }
   };
@@ -125,39 +142,39 @@ const ClientDashboard = () => {
   }
 
   return (
-      <div className="cd-container">
-        <div className="cd-sidebar">
-          <div className="cd-profile">
-            <div className="cd-avatar">
-              {user?.name?.charAt(0).toUpperCase() || 'C'}
-            </div>
-            <h3>{user?.name || 'Loading...'}</h3>
-            <p>{user?.email || 'Loading...'}</p>
+    <div className="cd-container">
+      <div className="cd-sidebar">
+        <div className="cd-profile">
+          <div className="cd-avatar">
+            {user?.name?.charAt(0).toUpperCase() || 'C'}
           </div>
-
-          <nav className="cd-nav">
-            <ul className="cd-menu">
-              {navigationItems.map((item, index) => (
-                  <li
-                      key={index}
-                      className={`cd-item ${activeSection === item.section ? 'cd-active' : ''}`}
-                      onClick={() => setActiveSection(item.section)}
-                  >
-                    <item.icon className="cd-icon" size={20} />
-                    <span>{item.label}</span>
-                  </li>
-              ))}
-            </ul>
-          </nav>
+          <h3>{user?.name || 'Loading...'}</h3>
+          <p>{user?.email || 'Loading...'}</p>
         </div>
 
-        <div className="cd-main">
-          <div className="cd-content">
-            {renderSection()}
-          </div>
+        <nav className="cd-nav">
+          <ul className="cd-menu">
+            {navigationItems.map((item, index) => (
+              <li
+                key={index}
+                className={`cd-item ${activeSection === item.section ? 'cd-active' : ''}`}
+                onClick={() => setActiveSection(item.section)}
+              >
+                <item.icon className="cd-icon" size={20} />
+                <span>{item.label}</span>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+
+      <div className="cd-main">
+        <div className="cd-content">
+          {renderSection()}
         </div>
       </div>
+    </div>
   );
 };
 
-export default ClientDashboard
+export default ClientDashboard;
