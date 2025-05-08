@@ -1,11 +1,11 @@
 package com.example.backend.entity;
 
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
 
 @Entity
-@Data
 public class Proposal {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,12 +21,16 @@ public class Proposal {
     private String status = "Pending"; // Pending, Accepted, Rejected
 
     @ManyToOne
-    @JoinColumn(name = "freelancer_id", nullable = false)
-    private Freelancer freelancer;
+    @JoinColumn(name = "project_id", nullable = false)
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
+    private Project project;
 
     @ManyToOne
-    @JoinColumn(name = "project_id", nullable = false)
-    private Project project;
+    @JoinColumn(name = "freelancer_id", nullable = false)
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
+    private Freelancer freelancer;
 
     @Column(nullable = false)
     private LocalDateTime submittedAt = LocalDateTime.now();
@@ -96,5 +100,19 @@ public class Proposal {
 
     public void setReviewedAt(LocalDateTime reviewedAt) {
         this.reviewedAt = reviewedAt;
+    }
+
+    @Override
+    public String toString() {
+        return "Proposal{" +
+                "id=" + id +
+                ", coverLetter='" + coverLetter + '\'' +
+                ", bidAmount=" + bidAmount +
+                ", status='" + status + '\'' +
+                ", project=" + project +
+                ", freelancer=" + freelancer +
+                ", submittedAt=" + submittedAt +
+                ", reviewedAt=" + reviewedAt +
+                '}';
     }
 }

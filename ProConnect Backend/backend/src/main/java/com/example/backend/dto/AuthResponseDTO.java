@@ -14,6 +14,7 @@ public class AuthResponseDTO {
     @JsonProperty("success")
     private boolean success;
 
+
     public AuthResponseDTO() {}
 
     public AuthResponseDTO(String token, String message, boolean success) {

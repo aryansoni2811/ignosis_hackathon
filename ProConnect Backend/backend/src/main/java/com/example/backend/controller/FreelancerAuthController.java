@@ -329,4 +329,29 @@ public class FreelancerAuthController {
                     .body("Error searching freelancers: " + e.getMessage());
         }
     }
+
+    // GET /api/auth/freelancer/by-email?email=example@email.com
+    @GetMapping("/by-email")
+    public ResponseEntity<?> getFreelancerIdByEmail(@RequestParam String email) {
+        try {
+            Optional<Freelancer> optionalFreelancer = freelancerRepository.findByEmail(email);
+            if (optionalFreelancer.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Freelancer not found");
+            }
+
+            Freelancer freelancer = optionalFreelancer.get();
+            Map<String, Object> response = Map.of(
+                    "id", freelancer.getId(),
+                    "email", freelancer.getEmail(),
+                    "name", freelancer.getName()
+            );
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            logger.severe("Error fetching freelancer by email: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error fetching freelancer: " + e.getMessage());
+        }
+    }
+
 }

@@ -3,13 +3,13 @@ package com.example.backend.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "projects")
-@Data
 public class Project {
 
     @Getter
@@ -67,6 +67,8 @@ public class Project {
     @Column
     private LocalDateTime updatedAt;
 
+    @Getter
+    @Setter
     @Column
     private Boolean isPaid = false;
 
@@ -115,6 +117,10 @@ public class Project {
         this.freelancer = freelancer;
     }
 
+    public Freelancer getFreelancer() {
+        return freelancer;
+    }
+
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
@@ -133,5 +139,73 @@ public class Project {
 
     public void setPaid(Boolean paid) {
         isPaid = paid;
+    }
+
+    @Override
+    public String toString() {
+        return "Project{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", budget=" + budget +
+                ", deadline=" + deadline +
+                ", requiredSkills='" + requiredSkills + '\'' +
+                ", category='" + category + '\'' +
+                ", status='" + status + '\'' +
+                ", client=" + client +
+                ", freelancer=" + freelancer +
+                ", completedAt=" + completedAt +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", isPaid=" + isPaid +
+                '}';
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getCompletedAt() {
+        return completedAt;
+    }
+
+    public Client getClient() {
+        return client;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public String getRequiredSkills() {
+        return requiredSkills;
+    }
+
+    public LocalDate getDeadline() {
+        return deadline;
+    }
+
+    public Double getBudget() {
+        return budget;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public Long getId() {
+        return id;
     }
 }

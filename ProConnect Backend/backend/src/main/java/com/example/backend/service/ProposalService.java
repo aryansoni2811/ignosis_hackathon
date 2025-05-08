@@ -1,20 +1,21 @@
 package com.example.backend.service;
 
 import com.example.backend.dto.ProposalRequest;
+import com.example.backend.entity.ApplicationTracking;
 import com.example.backend.entity.Freelancer;
 import com.example.backend.entity.Proposal;
 import com.example.backend.entity.Project;
 import com.example.backend.exception.AlreadyAppliedException;
 import com.example.backend.exception.ResourceNotFoundException;
-import com.example.backend.repository.FreelancerRepository;
-import com.example.backend.repository.PaymentRepository;
-import com.example.backend.repository.ProposalRepository;
-import com.example.backend.repository.ProjectRepository;
+import com.example.backend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProposalService {
@@ -34,6 +35,19 @@ public class ProposalService {
     @Autowired
     private PaymentService paymentService;
 
+    @Autowired
+    private ApplicationTrackingRepository applicationTrackingRepo;
+
+    private List<String> parseSkills(String skillsString) {
+        if (skillsString == null || skillsString.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+        return Arrays.stream(skillsString.split(","))
+                .map(String::trim)
+                .filter(skill -> !skill.isEmpty())
+                .collect(Collectors.toList());
+    }
+
     public Proposal getProposalById(Long proposalId) {
         return proposalRepository.findById(proposalId)
                 .orElseThrow(() -> new ResourceNotFoundException("Proposal not found"));
@@ -44,12 +58,7 @@ public class ProposalService {
     }
 
     public List<Proposal> getProposalsByProject(Long projectId) {
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId));
-
-        List<Proposal> proposals = proposalRepository.findByProjectId(projectId);
-        proposals.sort((p1, p2) -> p2.getSubmittedAt().compareTo(p1.getSubmittedAt()));
-        return proposals;
+        return proposalRepository.findByProjectIdWithRelations(projectId);
     }
 
     public List<Proposal> getProposalsByFreelancer(Long freelancerId) {
@@ -80,8 +89,20 @@ public class ProposalService {
         proposal.setBidAmount(proposalRequest.getBidAmount());
         proposal.setStatus("Pending");
         proposal.setSubmittedAt(LocalDateTime.now());
+        Proposal savedProposal = proposalRepository.save(proposal);
 
-        return proposalRepository.save(proposal);
+        // NEW: Track skills from project's requiredSkills
+        List<String> skills = parseSkills(project.getRequiredSkills());
+        skills.forEach(skill -> {
+            ApplicationTracking tracking = new ApplicationTracking();
+            tracking.setFreelancer(freelancer);
+            tracking.setSkill(skill);
+            tracking.setWon(false);
+            tracking.setAppliedDate(LocalDateTime.now());
+            applicationTrackingRepo.save(tracking);
+        });
+
+        return savedProposal;
     }
 
     // ProposalService.java
@@ -109,6 +130,18 @@ public class ProposalService {
         proposal.setStatus("Accepted");
         proposal.setReviewedAt(LocalDateTime.now());
         Proposal acceptedProposal = proposalRepository.save(proposal);
+
+        // NEW: Mark skills as won
+        List<String> skills = parseSkills(project.getRequiredSkills());
+        if (!skills.isEmpty()) {
+            List<ApplicationTracking> applications = applicationTrackingRepo
+                    .findByFreelancerAndSkillInAndWonFalse(freelancer, skills);
+
+            applications.forEach(app -> {
+                app.setWon(true);
+                applicationTrackingRepo.save(app);
+            });
+        }
 
         // Reject other proposals
         proposalRepository.rejectOtherProposals(project.getId(), proposalId);

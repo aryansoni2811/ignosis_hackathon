@@ -26,4 +26,10 @@ public interface ProposalRepository extends JpaRepository<Proposal, Long> {
             "WHERE p.project.id = :projectId AND p.id != :acceptedProposalId AND p.status = 'Pending'")
     void rejectOtherProposals(@Param("projectId") Long projectId,
                               @Param("acceptedProposalId") Long acceptedProposalId);
+
+    @Query("SELECT p FROM Proposal p " +
+            "LEFT JOIN FETCH p.freelancer " +
+            "LEFT JOIN FETCH p.project " +
+            "WHERE p.project.id = :projectId")
+    List<Proposal> findByProjectIdWithRelations(@Param("projectId") Long projectId);
 }

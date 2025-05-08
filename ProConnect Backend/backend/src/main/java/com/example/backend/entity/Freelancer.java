@@ -3,10 +3,10 @@ package com.example.backend.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Entity
-@Data
 public class Freelancer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -129,5 +129,21 @@ public class Freelancer {
 
     public void setSkills(List<Skill> skills) {
         this.skills = skills;
+    }
+
+    @Override
+    public String toString() {
+        return "Freelancer{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", profileImage=" + Arrays.toString(profileImage) +
+                ", profileImageContentType='" + profileImageContentType + '\'' +
+                ", earnings=" + earnings +
+                ", skills=" + skills +
+                ", financialSettings=" + financialSettings +
+                ", savingsGoals=" + savingsGoals +
+                '}';
     }
 }

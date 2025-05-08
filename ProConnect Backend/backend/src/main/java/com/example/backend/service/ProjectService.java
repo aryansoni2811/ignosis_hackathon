@@ -1,8 +1,10 @@
 package com.example.backend.service;
 
 import com.example.backend.dto.ProjectDTO;
+import com.example.backend.entity.ApplicationTracking;
 import com.example.backend.entity.Client;
 import com.example.backend.entity.Project;
+import com.example.backend.repository.ApplicationTrackingRepository;
 import com.example.backend.repository.ClientRepository;
 import com.example.backend.repository.ProjectRepository;
 import com.example.backend.exception.ResourceNotFoundException;
@@ -26,6 +28,7 @@ public class ProjectService {
 
     @Autowired
     private RatingService ratingService;
+    private ApplicationTrackingRepository applicationTrackingRepo;
 
     @Autowired
     private ClientRepository clientRepository;
