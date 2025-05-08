@@ -31,12 +31,19 @@ public class RatingService {
         return ratingRepository.countByFreelancerId(freelancerId);
     }
 
+
     public boolean hasClientRatedFreelancerForProject(Long freelancerId, Long clientId, Long projectId) {
         Optional<Rating> rating = ratingRepository.findByFreelancerIdAndClientIdAndProjectId(
                 freelancerId, clientId, projectId
         );
         return rating.isPresent();
     }
+
+    public boolean hasClientRatedForProject(Long clientId, Long projectId) {
+        return ratingRepository.existsByClientIdAndProjectId(clientId, projectId);
+    }
+
+
 
     public Map<String, Object> getFreelancerRatingStats(Long freelancerId) {
         Map<String, Object> stats = new HashMap<>();
@@ -48,6 +55,4 @@ public class RatingService {
 
         return stats;
     }
-
-
 }
