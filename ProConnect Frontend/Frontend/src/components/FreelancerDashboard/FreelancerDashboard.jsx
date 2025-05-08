@@ -117,35 +117,35 @@ const FreelancerDashboard = () => {
 
   const renderOverview = () => (
     <div className="dashboard-metrics-grid">
-      <div className="dashboard-metric-card earnings-card">
-        <div className="metric-icon-container">
-          <DollarSign className="metric-icon" />
-        </div>
-        <div className="metric-content">
-          <h3>Total Earnings</h3>
-          <p>${freelancerData.earnings.toLocaleString()}</p>
-        </div>
-      </div>
+      {/*<div className="dashboard-metric-card earnings-card">*/}
+      {/*  <div className="metric-icon-container">*/}
+      {/*    <DollarSign className="metric-icon" />*/}
+      {/*  </div>*/}
+      {/*  <div className="metric-content">*/}
+      {/*    <h3>Total Earnings</h3>*/}
+      {/*    <p>${freelancerData.earnings.toLocaleString()}</p>*/}
+      {/*  </div>*/}
+      {/*</div>*/}
 
-      <div className="dashboard-metric-card projects-card">
-        <div className="metric-icon-container">
-          <CheckCircle className="metric-icon" />
-        </div>
-        <div className="metric-content">
-          <h3>Completed Projects</h3>
-          <p>{freelancerData.completedProjects}</p>
-        </div>
-      </div>
+      {/*<div className="dashboard-metric-card projects-card">*/}
+      {/*  <div className="metric-icon-container">*/}
+      {/*    <CheckCircle className="metric-icon" />*/}
+      {/*  </div>*/}
+      {/*  <div className="metric-content">*/}
+      {/*    <h3>Completed Projects</h3>*/}
+      {/*    <p>{freelancerData.completedProjects}</p>*/}
+      {/*  </div>*/}
+      {/*</div>*/}
 
-      <div className="dashboard-metric-card active-projects-card">
-        <div className="metric-icon-container">
-          <Clock className="metric-icon" />
-        </div>
-        <div className="metric-content">
-          <h3>Active Projects</h3>
-          <p>{freelancerData.activeProjects}</p>
-        </div>
-      </div>
+      {/*<div className="dashboard-metric-card active-projects-card">*/}
+      {/*  <div className="metric-icon-container">*/}
+      {/*    <Clock className="metric-icon" />*/}
+      {/*  </div>*/}
+      {/*  <div className="metric-content">*/}
+      {/*    <h3>Active Projects</h3>*/}
+      {/*    <p>{freelancerData.activeProjects}</p>*/}
+      {/*  </div>*/}
+      {/*</div>*/}
 
       <div className="dashboard-metric-card profile-card">
         <div className="metric-icon-container">
@@ -245,8 +245,7 @@ const FreelancerDashboard = () => {
         <div className="profile-avatar">
           {freelancerData.name?.charAt(0).toUpperCase() || 'F'}
         </div>
-        <h2>{freelancerData.name || 'Freelancer'}</h2>
-        <p className="profession">{freelancerData.profession || 'Professional'}</p>
+        <p className="freelancer">{freelancerData.name || 'Freelancer'}</p>
         <p className="profile-email">{freelancerData.email || 'email@example.com'}</p>
       </div>
 
@@ -258,7 +257,6 @@ const FreelancerDashboard = () => {
           { icon: DollarSign, label: 'Earnings', section: 'earnings' },
           { icon: PieChart, label: 'Financial Planning', section: 'financial-planning' },
           { icon: TrendingUp, label: 'Market Analysis', section: 'analysis' }, // New menu item
-          
           { icon: Settings, label: 'Settings', section: 'settings' }
         ].map(({ icon: Icon, label, section }) => (
           <button
@@ -289,10 +287,7 @@ const FreelancerDashboard = () => {
           <div className="main-content-container">
             {activeSection === 'overview' && (
               <>
-                <div className="welcome-banner">
-                  <h1>Welcome back, {freelancerData.name || 'Freelancer'}!</h1>
-                  <p>Here's what's happening with your work today</p>
-                </div>
+
 
                 <div className="content-section">
                   {renderOverview()}

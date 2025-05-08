@@ -15,9 +15,7 @@ const FinancialPlanningSection = ({ freelancerId }) => {
         <div className="financial-card tax-card">
           <TaxEstimationComponent freelancerId={freelancerId} />
         </div>
-        
-        
-        
+
         
       </div>
     </div>

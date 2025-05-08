@@ -7,6 +7,7 @@ import './PostProject.css';
 const PostProject = ({ setProjectStats }) => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
+
   const [projectForm, setProjectForm] = useState({
     title: '',
     description: '',
@@ -15,8 +16,8 @@ const PostProject = ({ setProjectStats }) => {
     category: '',
     requiredSkills: ''
   });
+
   const [formErrors, setFormErrors] = useState({});
-  const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState('');
 
   const handleInputChange = (e) => {
@@ -82,7 +83,6 @@ const PostProject = ({ setProjectStats }) => {
       return;
     }
 
-    setSubmitSuccess(false);
     setSubmitError('');
 
     const errors = validateForm();
@@ -108,6 +108,7 @@ const PostProject = ({ setProjectStats }) => {
         }
       });
 
+      // Reset form
       setProjectForm({
         title: '',
         description: '',
@@ -117,8 +118,7 @@ const PostProject = ({ setProjectStats }) => {
         requiredSkills: ''
       });
 
-      setSubmitSuccess(true);
-
+      // Update project stats
       const response = await axiosInstance.get(`/api/projects/client?email=${user.email}`, {
         headers: {
           Authorization: `Bearer ${user.token}`
@@ -133,6 +133,9 @@ const PostProject = ({ setProjectStats }) => {
       };
 
       setProjectStats(stats);
+
+      // Redirect to dashboard
+      navigate('/ClientDashboard');
 
     } catch (error) {
       console.error('Error posting project:', error);
@@ -152,12 +155,6 @@ const PostProject = ({ setProjectStats }) => {
   return (
       <div className="new-project-section">
         <h2>Post a New Project</h2>
-
-        {submitSuccess && (
-            <div className="new-success-message">
-              Project posted successfully! Freelancers can now view and bid on your project.
-            </div>
-        )}
 
         {submitError && (
             <div className="new-error-message">

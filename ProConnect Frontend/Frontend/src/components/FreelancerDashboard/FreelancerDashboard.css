@@ -5,17 +5,22 @@
   display: flex;
   min-height: 100vh;
   background-color: #f8fafc;
+  padding: 1rem;
+  height: 100%;
+  overflow-y: auto;
+  max-height: 80vh;
 }
 
 .sidebar-container {
-  width: 280px;
+  width: 270px;
   height: 100vh;
+  margin-top: 60px;
   position: fixed;
   left: 0;
   top: 0;
-  background: linear-gradient(135deg, #1e293b, #0f172a);
-  color: white;
-  padding: 2rem 1.5rem;
+  background: white;
+  color: black;
+  padding: 2rem 1.5rem 100px;
   box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
   z-index: 100;
   overflow-y: auto;
@@ -52,8 +57,8 @@
 .profile-section {
   text-align: center;
   margin-bottom: 2.5rem;
+  margin-top: 0;
   padding-bottom: 2rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .profile-avatar {
@@ -61,7 +66,7 @@
   height: 80px;
   margin: 0 auto 1rem;
   border-radius: 50%;
-  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  background: #1a73e8;
   color: white;
   display: flex;
   align-items: center;
@@ -77,14 +82,13 @@
   color: white;
 }
 
-.profession {
-  color: #94a3b8;
-  font-size: 0.875rem;
-  margin-bottom: 0.5rem;
+.freelancer {
+  color: black;
+  font-size: 0.875rem ;
 }
 
 .profile-email {
-  color: #cbd5e1;
+  color: #334155;
   font-size: 0.75rem;
   background: rgba(255, 255, 255, 0.1);
   padding: 0.25rem 0.75rem;
@@ -106,7 +110,7 @@
   border-radius: 8px;
   background: transparent;
   border: none;
-  color: #cbd5e1;
+  color: #4b5563;
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: left;
@@ -115,18 +119,21 @@
 }
 
 .nav-item:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  background-color: #eef2ff;
+  color: black;
+  transform: translateX(4px);
 }
 
 .nav-item.active {
-  background: rgba(255, 255, 255, 0.15);
+  transform: translateX(2px);
+  background-color: #1a73e8;
   color: white;
   font-weight: 500;
+  box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
 }
 
 .nav-item.active .nav-icon {
-  color: #3b82f6;
+  color: white;
 }
 
 .active-indicator {
@@ -148,6 +155,8 @@
 /* Dashboard Metrics */
 .dashboard-metrics-grid {
   display: grid;
+  height: 100px;
+  margin-top: 0;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1.5rem;
   margin-bottom: 1.5rem;
@@ -358,6 +367,7 @@
 .empty-icon {
   color: #94a3b8;
   margin-bottom: 1rem;
+  font-size: 2rem;
 }
 
 .empty-state p {
@@ -368,233 +378,14 @@
 .browse-projects-btn {
   background: #3b82f6;
   color: white;
-  border: none;
   padding: 0.5rem 1.25rem;
+  font-size: 0.875rem;
   border-radius: 6px;
-  font-weight: 500;
+  border: none;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: background 0.3s ease;
 }
 
 .browse-projects-btn:hover {
   background: #2563eb;
-}
-
-/* Tax Estimation */
-.tax-estimation-container {
-  padding: 0;
-}
-
-.tax-content {
-  padding: 1.5rem;
-  background: #f8fafc;
-  border-radius: 8px;
-}
-
-/* Welcome Banner */
-.welcome-banner {
-  margin-bottom: 2rem;
-}
-
-.welcome-banner h1 {
-  font-size: 1.75rem;
-  color: #1e293b;
-  margin: 0 0 0.5rem;
-}
-
-.welcome-banner p {
-  color: #64748b;
-  margin: 0;
-}
-
-/* Loading Spinner */
-.loading-spinner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 60vh;
-}
-
-.spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid #e2e8f0;
-  border-top: 4px solid #3b82f6;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 1rem;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.loading-spinner p {
-  color: #64748b;
-}
-
-/* Responsive Design */
-@media (max-width: 1024px) {
-  .sidebar-container {
-    width: 240px;
-    padding: 1.5rem 1rem;
-  }
-  
-  .main-content-wrapper {
-    margin-left: 240px;
-  }
-}
-
-@media (max-width: 768px) {
-  .freelancer-dashboard-wrapper {
-    flex-direction: column;
-  }
-  
-  .sidebar-container {
-    position: static;
-    width: 100%;
-    height: auto;
-  }
-  
-  .main-content-wrapper {
-    margin-left: 0;
-  }
-  
-  .dashboard-metrics-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-@media (max-width: 480px) {
-  .dashboard-metrics-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .project-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-  }
-  
-  .project-status {
-    width: 100%;
-    justify-content: space-between;
-  }
-  
-  .main-content-container {
-    padding: 1.5rem 1rem;
-  }
-  
-  .content-section {
-    padding: 1.5rem 1rem;
-  }
-}
-
-
-/* Dashboard Metrics Grid */
-.dashboard-metrics-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 20px;
-  margin-bottom: 30px;
-}
-
-/* Metric Card Styles */
-.dashboard-metric-card {
-  background: white;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  display: flex;
-  align-items: center;
-  transition: transform 0.2s ease;
-}
-
-.dashboard-metric-card:hover {
-  transform: translateY(-2px);
-}
-
-.metric-icon-container {
-  width: 50px;
-  height: 50px;
-  border-radius: 12px;
-  background: #f0f7ff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 15px;
-}
-
-.metric-icon {
-  color: #3a86ff;
-  width: 24px;
-  height: 24px;
-}
-
-/* Specific icon colors */
-.dashboard-metric-card:nth-child(1) .metric-icon-container {
-  background: #e6f7ee;
-}
-.dashboard-metric-card:nth-child(1) .metric-icon {
-  color: #4caf50;
-}
-
-.dashboard-metric-card:nth-child(2) .metric-icon-container {
-  background: #fff8e1;
-}
-.dashboard-metric-card:nth-child(2) .metric-icon {
-  color: #ffc107;
-}
-
-.dashboard-metric-card:nth-child(3) .metric-icon-container {
-  background: #f0f7ff;
-}
-.dashboard-metric-card:nth-child(3) .metric-icon {
-  color: #3a86ff;
-}
-
-.dashboard-metric-card:nth-child(4) .metric-icon-container {
-  background: #f5e6ff;
-}
-.dashboard-metric-card:nth-child(4) .metric-icon {
-  color: #9c27b0;
-}
-
-.dashboard-metric-card:nth-child(5) .metric-icon-container {
-  background: #ffe0e0;
-}
-.dashboard-metric-card:nth-child(5) .metric-icon {
-  color: #f44336;
-}
-
-.metric-content h3 {
-  margin: 0 0 5px 0;
-  font-size: 14px;
-  font-weight: 500;
-  color: #666;
-}
-
-.metric-content p {
-  margin: 0;
-  font-size: 22px;
-  font-weight: 600;
-  color: #333;
-}
-
-/* Rating stars */
-.rating-stars-small {
-  display: inline-flex;
-  margin-left: 8px;
-  vertical-align: middle;
-}
-
-.rating-star-small {
-  margin-right: 2px;
-  color: #e0e0e0;
-}
-
-.rating-star-small.filled {
-  color: #ffc107;
 }
