@@ -95,6 +95,9 @@
 /* Proposals List */
 .proposals-list {
     margin-top: 24px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
 }
 
 .proposals-list h4 {
@@ -109,8 +112,9 @@
     background-color: #f9fafb;
     border-radius: 10px;
     border: 1px solid #e5e7eb;
-    margin-bottom: 16px;
     transition: transform 0.2s ease;
+    /* Remove margin-bottom since we're using grid gap */
+    margin-bottom: 0;
 }
 
 .proposal-card:hover {
@@ -253,7 +257,23 @@
 }
 
 /* Media Queries */
+
+@media (max-width: 1024px) {
+    .proposals-list {
+        grid-template-columns: 1fr;
+    }
+}
+
 @media (max-width: 768px) {
+
+    .proposals-list {
+        gap: 16px;
+    }
+
+    .proposal-card {
+        padding: 16px;
+    }
+
     .proposals-section {
         padding: 16px;
         margin: 16px;
