@@ -127,7 +127,7 @@
 
 .chart-bars {
   display: flex;
-  height: 150px;
+  height: 200px;
   align-items: flex-end;
   gap: 20px;
   padding: 0 20px;
@@ -163,7 +163,7 @@
   font-size: 11px;
   color: #666;
   text-align: center;
-  margin-top: 5px;
+  margin: 0;
 }
 
 .chart-x-axis {
@@ -265,19 +265,19 @@
   .earnings-overview {
     flex-direction: column;
   }
-  
+
   .total-earnings-card, .monthly-earnings-chart {
     width: 100%;
   }
-  
+
   .chart-bars {
     gap: 15px;
   }
-  
+
   .chart-bar {
     width: 30px;
   }
-  
+
   .bar-label {
     font-size: 10px;
   }

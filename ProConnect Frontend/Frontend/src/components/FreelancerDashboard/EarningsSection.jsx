@@ -107,7 +107,7 @@ const EarningsSection = () => {
           {earningsData.monthlyEarnings.length > 0 ? (
             <div className="bar-chart-container">
               <div className="chart-y-axis">
-                {[0, 25, 50, 75, 100].map((percent) => (
+                {[100, 75, 50, 25 ,0 ].map((percent) => (
                   <div key={percent} className="y-axis-label">
                     ${Math.round((percent / 100) * maxAmount).toLocaleString()}
                   </div>
@@ -129,7 +129,7 @@ const EarningsSection = () => {
                           title={`${formatMonth(monthEarning.month)} ${monthEarning.year}: $${monthEarning.amount.toLocaleString()}`}
                         >
                           <span className="bar-value">
-                            ${monthEarning.amount > maxAmount * 0.1 ? 
+                            ${monthEarning.amount > maxAmount * 0.1 ?
                               monthEarning.amount.toLocaleString('en-US', { maximumFractionDigits: 0 }) : ''}
                           </span>
                         </div>
