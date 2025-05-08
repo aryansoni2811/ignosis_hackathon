@@ -29,6 +29,16 @@ const FreelancerLogin = () => {
     return email.split('@')[0];
   };
 
+  const fetchFreelancerId = async (email) => {
+    try {
+      const response = await axiosInstance.get(`/api/auth/freelancer/by-email?email=${email}`);
+      return response.data.id; // Returns the freelancer ID
+    } catch (error) {
+      console.error('Error fetching freelancer ID:', error);
+      throw error;
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -42,15 +52,19 @@ const FreelancerLogin = () => {
       });
 
       if (response.data.success) {
+
+        const freelancerId = await fetchFreelancerId(formData.email);
+
         localStorage.setItem('token', response.data.token);
-        localStorage.setItem('userType', 'freelancer');
         localStorage.setItem('freelancerEmail', formData.email);
+        localStorage.setItem('freelancerId', freelancerId);
         const userData = {
           token: response.data.token,
           userType: 'freelancer',
           email: formData.email,
           name: response.data.name || response.data.freelancerName || getDefaultName(formData.email),
-          freelancerData: response.data.freelancerData
+          freelancerData: response.data.freelancerData,
+          id: freelancerId
         };
 
         login(userData);

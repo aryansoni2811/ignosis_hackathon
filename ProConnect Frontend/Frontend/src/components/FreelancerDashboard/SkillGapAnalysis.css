@@ -1,0 +1,55 @@
+.skill-gap-container {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.skill-feedback-list {
+    margin-top: 15px;
+}
+
+.skill-feedback {
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.skill-feedback.needs-improvement {
+    border-left: 4px solid #ff6b6b;
+}
+
+.skill-feedback.average {
+    border-left: 4px solid #ffd166;
+}
+
+.skill-feedback.excellent {
+    border-left: 4px solid #06d6a0;
+}
+
+.skill-stats {
+    margin-top: 8px;
+    font-size: 0.9em;
+    color: #6c757d;
+}
+
+.loading {
+    padding: 20px;
+    text-align: center;
+}
+
+.error {
+    color: #dc3545;
+    padding: 1rem;
+    background: #f8d7da;
+    border-radius: 4px;
+    margin: 1rem 0;
+}
+
+.loading {
+    padding: 1rem;
+    text-align: center;
+    color: #6c757d;
+}

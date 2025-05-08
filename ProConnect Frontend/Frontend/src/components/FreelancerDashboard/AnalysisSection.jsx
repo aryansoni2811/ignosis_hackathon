@@ -5,6 +5,7 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 import axiosInstance from '../config/axiosConfig';
 import './AnalysisSection.css';
 import PieChartAnalysis from './PieChartAnalysis';
+import SkillGapAnalysis from './SkillGapAnalysis';
 
 // Register ChartJS components
 ChartJS.register(
@@ -21,10 +22,22 @@ const AnalysisSection = () => {
   const [categoryStats, setCategoryStats] = useState({});
   const [loading, setLoading] = useState(true);
   const [chartType, setChartType] = useState('bar'); // 'bar' or 'pie'
+  const [freelancerId, setFreelancerId] = useState(null); // Assuming you have a way to set this
+
+  
 
   useEffect(() => {
     const fetchCategoryStats = async () => {
       try {
+        const email = localStorage.getItem('userEmail');
+        console.log('email:',email);
+        
+        if(email) {
+        const res = await axiosInstance.get(`/api/auth/freelancer/by-email?email=${email}`);
+        console.log('res:',res.data);
+        
+        setFreelancerId(res.data.id);
+      } 
         const response = await axiosInstance.get('/api/projects/category-stats');
         setCategoryStats(response.data);
       } catch (error) {
@@ -197,6 +210,7 @@ const AnalysisSection = () => {
         </ul>
       </div>
       <div><PieChartAnalysis/></div>
+      <div><SkillGapAnalysis freelancerId={freelancerId}/></div>
     </div>
   );
 };

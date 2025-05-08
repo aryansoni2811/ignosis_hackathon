@@ -27,45 +27,6 @@ const DashboardHome = ({ clientData, projectStats, setProjectStats }) => {
         return new Date(deadline) < new Date();
     };
 
-    const handleSubmitFeedback = async () => {
-        try {
-            if (!selectedProject || !selectedProject.freelancerId) return;
-
-            const response = await axiosInstance.post('/api/ratings', {
-                freelancerId: selectedProject.freelancerId,
-                projectId: selectedProject.id,
-                rating,
-                message: feedbackMessage,
-                clientId: clientData.id
-            }, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${user.token}`
-                }
-            });
-
-            console.log('Feedback submitted successfully:', response.data);
-
-            const updatedProjects = recentProjects.map(project =>
-                project.id === selectedProject.id
-                    ? { ...project, hasFeedback: true }
-                    : project
-            );
-
-            setRecentProjects(updatedProjects);
-            setFeedbackModalIsOpen(false);
-            setRating(0);
-            setFeedbackMessage('');
-
-            alert('Feedback submitted successfully!');
-
-        } catch (error) {
-            console.error('Error submitting feedback:', error);
-            alert(`Failed to submit feedback: ${error.response?.data?.message || error.message}`);
-        }
-    };
-
-
     const checkFeedbackExists = async (projectId, freelancerId) => {
         try {
             const response = await axiosInstance.get('/api/ratings/check-rating', {
@@ -85,7 +46,6 @@ const DashboardHome = ({ clientData, projectStats, setProjectStats }) => {
         }
     };
 
-    // Modify your fetchClientProjects function to include feedback checks
     const fetchClientProjects = async () => {
         try {
             setLoading(true);
@@ -105,7 +65,6 @@ const DashboardHome = ({ clientData, projectStats, setProjectStats }) => {
                 throw new Error('No data received');
             }
 
-            // Check feedback status for each project
             const projectsWithFeedback = await Promise.all(
                 response.data.map(async (project) => {
                     const hasFeedback = project.freelancerId
@@ -137,6 +96,43 @@ const DashboardHome = ({ clientData, projectStats, setProjectStats }) => {
             setError(error.message);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleSubmitFeedback = async () => {
+        try {
+            if (!selectedProject || !selectedProject.freelancerId) return;
+
+            const response = await axiosInstance.post('/api/ratings', {
+                freelancerId: selectedProject.freelancerId,
+                projectId: selectedProject.id,
+                rating,
+                message: feedbackMessage,
+                clientId: clientData.id
+            }, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${user.token}`
+                }
+            });
+
+            console.log('Feedback submitted successfully:', response.data);
+
+            const updatedProjects = recentProjects.map(project =>
+                project.id === selectedProject.id
+                    ? { ...project, hasFeedback: true }
+                    : project
+            );
+
+            setRecentProjects(updatedProjects);
+            setFeedbackModalIsOpen(false);
+            setRating(0);
+            setFeedbackMessage('');
+
+            alert('Feedback submitted successfully!');
+        } catch (error) {
+            console.error('Error submitting feedback:', error);
+            alert(`Failed to submit feedback: ${error.response?.data?.message || error.message}`);
         }
     };
 

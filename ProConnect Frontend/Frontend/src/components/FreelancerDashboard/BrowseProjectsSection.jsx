@@ -29,10 +29,14 @@ const BrowseProjectsSection = () => {
 
     const fetchFreelancerId = async () => {
       try {
-        const email = localStorage.getItem('freelancerEmail');
+        const email = localStorage.getItem('userEmail');
         if (email) {
-          const response = await axiosInstance.get(`/api/auth/freelancer/freelancer?email=${email}`);
-          setFreelancerId(response.data.id);
+          const response = await axiosInstance.get(`/api/auth/freelancer/by-email?email=${email}`);
+          const freelancerdata=response.data;
+          console.log('Freelancer data:', freelancerdata);
+          
+          console.log('Freelancer id:', freelancerdata.id);
+          setFreelancerId(freelancerdata.id);
         }
       } catch (error) {
         console.error('Error fetching freelancer ID:', error);
@@ -44,7 +48,9 @@ const BrowseProjectsSection = () => {
   }, []);
 
   const handleApplyClick = (project) => {
-    if (!freelancerId) {
+    console.log(freelancerId);
+    
+    if (freelancerId==undefined || freelancerId==null) {
       alert('Please log in as a freelancer to apply for projects');
       return;
     }

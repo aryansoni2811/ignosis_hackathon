@@ -57,6 +57,10 @@ const ClientDashboard = () => {
     const fetchClientData = async () => {
       try {
         if (!user?.email || !user?.token) {
+        const token = localStorage.getItem('token');
+        const clientEmail = localStorage.getItem('userEmail');
+        
+        if (!token || !clientEmail) {
           throw new Error('Authentication required');
         }
 
@@ -82,7 +86,7 @@ const ClientDashboard = () => {
         };
 
         setProjectStats(stats);
-      } catch (error) {
+      } }catch (error) {
         console.error('Error fetching client data:', error);
         if (error.response?.status === 401 || error.response?.status === 403) {
           navigate('/login');

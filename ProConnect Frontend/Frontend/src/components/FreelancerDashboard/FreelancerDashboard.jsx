@@ -54,7 +54,7 @@ const FreelancerDashboard = () => {
         const freelancerResponse = await axiosInstance.get(`/api/auth/freelancer/freelancer?email=${email}`);
         const freelancer = freelancerResponse.data;
 
-        localStorage.setItem('freelancerId', freelancer.id);
+        //localStorage.setItem('freelancerId', freelancer.id);
 
         const projectsResponse = await axiosInstance.get(`/api/projects/freelancer/${freelancer.id}`);
         const projects = projectsResponse.data || [];

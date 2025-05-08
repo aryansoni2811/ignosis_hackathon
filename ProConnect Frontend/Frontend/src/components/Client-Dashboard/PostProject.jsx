@@ -92,6 +92,11 @@ const PostProject = ({ setProjectStats }) => {
     }
 
     try {
+      const clientEmail = localStorage.getItem('userEmail');
+      if (!clientEmail) {
+        throw new Error('No client email found');
+      }
+      
       const projectData = {
         title: projectForm.title,
         description: projectForm.description,
