@@ -27,13 +27,14 @@ const DashboardHome = ({ clientData, projectStats, setProjectStats }) => {
         return new Date(deadline) < new Date();
     };
 
-    const checkFeedbackExists = async (projectId, freelancerId) => {
+    const checkFeedbackExists = async (projectId) => {
         try {
+            if (!clientData?.id || !projectId) return false;
+            
             const response = await axiosInstance.get('/api/ratings/check-rating', {
                 params: {
-                    freelancerId,
-                    clientId: clientData.id,
-                    projectId
+                    projectId,
+                    clientId: clientData.id
                 },
                 headers: {
                     Authorization: `Bearer ${user.token}`
@@ -44,6 +45,24 @@ const DashboardHome = ({ clientData, projectStats, setProjectStats }) => {
             console.error('Error checking feedback:', error);
             return false;
         }
+    };
+
+    // Fetch client ID if not available
+    const fetchClientId = async () => {
+        if (!clientData?.id && user?.email) {
+            try {
+                const response = await axiosInstance.get(`/api/auth/client?email=${user.email}`, {
+                    headers: {
+                        Authorization: `Bearer ${user.token}`
+                    }
+                });
+                return response.data.id;
+            } catch (error) {
+                console.error('Error fetching client ID:', error);
+                return null;
+            }
+        }
+        return clientData?.id;
     };
 
     const fetchClientProjects = async () => {
@@ -67,15 +86,14 @@ const DashboardHome = ({ clientData, projectStats, setProjectStats }) => {
 
             const projectsWithFeedback = await Promise.all(
                 response.data.map(async (project) => {
-                    const hasFeedback = project.freelancerId
-                        ? await checkFeedbackExists(project.id, project.freelancerId)
+                    const isCompleted = project.status === 'Completed' || isDeadlinePassed(project.deadline);
+                    const hasFeedback = isCompleted && project.freelancerId 
+                        ? await checkFeedbackExists(project.id) 
                         : false;
 
                     return {
                         ...project,
-                        status: isDeadlinePassed(project.deadline) && project.status !== 'Completed'
-                            ? 'Completed'
-                            : project.status,
+                        status: isCompleted ? 'Completed' : project.status,
                         hasFeedback
                     };
                 })
@@ -101,46 +119,88 @@ const DashboardHome = ({ clientData, projectStats, setProjectStats }) => {
 
     const handleSubmitFeedback = async () => {
         try {
-            if (!selectedProject || !selectedProject.freelancerId) return;
-
-            const response = await axiosInstance.post('/api/ratings', {
+            // Validate project and freelancer
+            if (!selectedProject || !selectedProject.freelancerId) {
+                throw new Error('No project selected or freelancer not assigned');
+            }
+            
+            // Get client ID if not available
+            const clientId = await fetchClientId();
+            
+            if (!clientId) {
+                throw new Error('Client information not available');
+            }
+            
+            if (rating === 0) {
+                throw new Error('Please select a rating');
+            }
+    
+            const payload = {
                 freelancerId: selectedProject.freelancerId,
                 projectId: selectedProject.id,
-                rating,
+                rating: rating , // Convert to 1-10 scale
                 message: feedbackMessage,
-                clientId: clientData.id
-            }, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${user.token}`
+                clientId: clientId
+            };
+            
+            console.log('Submitting feedback with:', payload);
+    
+            const response = await axiosInstance.post(
+                '/api/ratings',
+                payload,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${user.token}`
+                    }
                 }
-            });
-
-            console.log('Feedback submitted successfully:', response.data);
-
+            );
+    
+            console.log('Feedback submission response:', response.data);
+    
+            // Update the UI
             const updatedProjects = recentProjects.map(project =>
                 project.id === selectedProject.id
                     ? { ...project, hasFeedback: true }
                     : project
             );
-
+    
             setRecentProjects(updatedProjects);
             setFeedbackModalIsOpen(false);
             setRating(0);
             setFeedbackMessage('');
-
+    
+            // Show success message
             alert('Feedback submitted successfully!');
         } catch (error) {
-            console.error('Error submitting feedback:', error);
-            alert(`Failed to submit feedback: ${error.response?.data?.message || error.message}`);
+            console.error('Detailed feedback submission error:', {
+                error: error.response?.data || error.message,
+                status: error.response?.status,
+                headers: error.response?.headers
+            });
+    
+            let errorMessage = 'Failed to submit feedback';
+            if (error.response) {
+                // The request was made and the server responded with a status code
+                errorMessage = error.response.data?.message || 
+                             `Server error: ${error.response.status}`;
+            } else if (error.request) {
+                // The request was made but no response was received
+                errorMessage = 'No response from server';
+            } else {
+                errorMessage = error.message;
+            }
+    
+            alert(`${errorMessage}. Please try again.`);
         }
     };
-
+    
+    // Fetch projects when user or clientData changes
     useEffect(() => {
         if (user?.email) {
             fetchClientProjects();
         }
-    }, [user, setProjectStats]);
+    }, [user, clientData]);
 
     return (
         <>
@@ -191,19 +251,25 @@ const DashboardHome = ({ clientData, projectStats, setProjectStats }) => {
                                     <td>${project.budget.toFixed(2)}</td>
                                     <td>{formatDate(project.deadline)}</td>
                                     <td>
-                                        {project.status === 'Completed' && project.freelancerId && !project.hasFeedback ? (
-                                            <button
-                                                onClick={() => {
-                                                    setSelectedProject(project);
-                                                    setFeedbackModalIsOpen(true);
-                                                }}
-                                                className="feedback-button"
-                                            >
-                                                Give Feedback
-                                            </button>
-                                        ) : project.hasFeedback ? (
-                                            <span className="feedback-given">Feedback Submitted</span>
-                                        ) : null}
+                                        {project.status === 'Completed' && project.freelancerId ? (
+                                            project.hasFeedback ? (
+                                                <span className="feedback-given">
+                                                    <CheckCircle size={16} /> Feedback Submitted
+                                                </span>
+                                            ) : (
+                                                <button
+                                                    onClick={() => {
+                                                        setSelectedProject(project);
+                                                        setFeedbackModalIsOpen(true);
+                                                    }}
+                                                    className="feedback-button"
+                                                >
+                                                    Give Feedback
+                                                </button>
+                                            )
+                                        ) : (
+                                            <span className="no-feedback">N/A</span>
+                                        )}
                                     </td>
                                 </tr>
                             ))}
@@ -216,7 +282,11 @@ const DashboardHome = ({ clientData, projectStats, setProjectStats }) => {
 
             <Modal
                 isOpen={feedbackModalIsOpen}
-                onRequestClose={() => setFeedbackModalIsOpen(false)}
+                onRequestClose={() => {
+                    setFeedbackModalIsOpen(false);
+                    setRating(0);
+                    setFeedbackMessage('');
+                }}
                 className="feedback-modal"
                 overlayClassName="feedback-overlay"
             >
@@ -234,14 +304,23 @@ const DashboardHome = ({ clientData, projectStats, setProjectStats }) => {
                         />
                     ))}
                 </div>
+                <p>Rating: {rating} of 5</p>
                 <textarea
                     placeholder="Write your feedback here..."
                     value={feedbackMessage}
                     onChange={(e) => setFeedbackMessage(e.target.value)}
                     className="feedback-textarea"
+                    rows={5}
                 />
                 <div className="modal-buttons">
-                    <button onClick={() => setFeedbackModalIsOpen(false)} className="cancel-button">
+                    <button 
+                        onClick={() => {
+                            setFeedbackModalIsOpen(false);
+                            setRating(0);
+                            setFeedbackMessage('');
+                        }} 
+                        className="cancel-button"
+                    >
                         Cancel
                     </button>
                     <button
